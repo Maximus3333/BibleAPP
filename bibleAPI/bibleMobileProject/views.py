@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from .serializers import VerseSerializer
 
 from .models import Book, Chapter, Verse
 
@@ -14,8 +15,22 @@ def get_bible(request):
         # print(book.id)  
     # print(books)
 
-    verse = Verse.objects.all()
-    print(verse)
+    verses = Verse.objects.all()
+    # for verse in verses:
+    #     print(verse.chapter.book.book_title)
+    serializer = VerseSerializer(verses, many=True)
+    for i in serializer.data:
+        print(i)
+    # j = JsonResponse(verses, safe=False)
+    # print(j.content)
+    # print(verses)
     return HttpResponse('ok')
+
+# @api_view(['GET'])
+# def article_list(request):
+#     if request.method == 'GET':
+#         articles = Article.objects.all()
+#         serializer = ArticleSerializer(articles, many=True)
+#         return Response(serializer.data)
 
     

@@ -45,15 +45,16 @@ class Chapter(models.Model):
 
 class Verse(models.Model):
 
-    # book = models.ForeignKey(Book, related_name='verses', on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, related_name='verses', on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, related_name='verses', on_delete=models.CASCADE, default="")
+
     verse = models.IntegerField()
     text = models.TextField()
 
     def __str__(self):
         return f'Chapter: {self.chapter}:{self.verse}' 
 
-        return self.chapter + "" + self.verse + "" + self.text
+        # return self.chapter + "" + self.verse + "" + self.text
 
 
 # Create your models here.
