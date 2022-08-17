@@ -40,7 +40,7 @@ class Chapter(models.Model):
     # verses = models.IntegerField()
 
     def __str__(self):
-        return f'Book: {self.book}, Chapter: {self.chapter}' 
+        return f'Book: {self.book.book_title}, Chapter: {self.chapter}' 
 
 
 class Verse(models.Model):
@@ -52,7 +52,7 @@ class Verse(models.Model):
     text = models.TextField()
 
     def __str__(self):
-        return f'Chapter: {self.chapter}:{self.verse}' 
+        return f'Book: {self.book.book_title}, Chapter: {self.chapter.chapter}:{self.verse}' 
 
         # return self.chapter + "" + self.verse + "" + self.text
 
