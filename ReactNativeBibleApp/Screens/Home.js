@@ -54,6 +54,7 @@ function Home(props) {
     const [modalVisible, setModalVisible] = useState(false);
   
     const clickedItem = (data) => {
+        
         props.navigation.navigate("Book", {data:data})
 
     }

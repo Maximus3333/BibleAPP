@@ -1,137 +1,155 @@
 import React, {useState, useEffect} from 'react';
+import { StyleSheet, Text, View, Button, FlatList, Alert, Modal, Pressable } from 'react-native';
+import { Card, FAB } from 'react-native-paper'; 
 // import RNFS from 'react-native-fs';
+// import * as Things from '../Bible/';
+
+
+
+
+
+
+// function importAll(r) {
+//   let images = {};
+//   r.keys().map((item, index) => { images[item.replace('../', '')] = r(item); });
+//   return images;
+// }
+
+// const images = importAll(require('../Bible'));
+
+var requireContext = require('../Bible/CompleteBible.json');
+// console.log(requireContext[0])
+
+// var loader = require('../Bible/moduleLoader')
+// console.log(loader)
+
+
+// function importAll(r) {
+//   return r.keys().map(r);
+// }
+
+// const images = importAll(require.context('./', false, //.(png|jpe?g|svg|json)$/));
+
+
 
 function Book(props) {
-  const [data, setData] = useState([props.route.params.data])
+  const [bookClicked, setBookClicked] = useState([props.route.params.data])
+  const [bookChapters, setbookChapters] = useState([])
 
-//   const [file, setFile] = useState([])
-//   const [downloadsFolder, setDownloadsFolder] = useState('');
-//   const [documentsFolder, setDocumentsFolder] = useState('');
-//   const [externalDirectory, setExternalDirectory] = useState('');
-//   useEffect(() => {
-//     //get user's file paths from react-native-fs
-//     setDownloadsFolder(RNFS.DownloadDirectoryPath);
-//     setDocumentsFolder(RNFS.DocumentDirectoryPath); //alternative to MainBundleDirectory.
-//     setExternalDirectory(RNFS.ExternalStorageDirectoryPath);
-//   }, []);
-//   return (
-//     <SafeAreaView>
-//       <Text> Downloads Folder: {downloadsFolder}</Text>
-//       <Text>Documents folder: {documentsFolder}</Text>
-//       <Text>External storage: {externalDirectory}</Text>
-//     </SafeAreaView>
-//   );
-  
-
-    // console.log(data)
-
-  useEffect(() => {
-    const data3 = '../Bible/' + data + `.json`;
-    console.log(data3)
-    const customData = require(data3);
-
-
-
-  //   setData(props.route.params.data)
-  //   // var data3 = data + `.json`;
-  //   // var data4 = `C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/` + data3
-  //   // var customData = require(data4);
-
-  //   // loadData();
-  //   // const willFocusSubscription = props.navigation.addListener('focus', () => {
-  //   //     loadData();
-  //   // });
-  //   console.log(data)
-
-  }, [])
 
   // console.log(data)
-  // console.log('hero')
-  // console.log(data.length)
-  // if (data.length != 0) {
-  //   var data3 = data + `.json`;
-  //   var data4 = `C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/` + data3
-  //   var customData = require(data4); 
-  //   console.log(data4)
+  // console.log(bibleData)
+  // console.log(requireContext[0]["book"])
+  useEffect(() => {    
+    requireContext.forEach(element => {
+      // console.log(element.book) 
+      if (bookClicked == element.book) {
+        // console.log(element.book)
+        setbookChapters(element.chapters)
+        // console.log(Object.keys(bookChapters.chapters))
+      }
+      
+    });
+  });
 
-  // } 
+  const clickedItem = (data) => {
 
-        // const list = []
-        // var data3 = props.route.params.data + `.json`;
-        // var data = `C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/` + data3
-        // console.log(data)
-
-
-        // const fileList = 'Jude.json'; //files list in public folder
-        // var data2 = `C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/Daniel.json`
-
-        // console.log(data)  
-        // console.log(data2) 
-        // list.push(data2)
-
-        // if (data3 == String) {
-        //     var customData = require(data); 
-
-        // }
-        // var customData = require(data2); 
+    data = [] + bookChapters + data 
         
-        // console.log(data3)
-        // console.log(customData)
+    // props.navigation.navigate("Book", {data:data})
 
-        // console.log(data)
-        // fileList.forEach(filename => {
-        // fetch(`C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/${filename}.json`).then(response => {
-        //     return response.json() //parse json
-        // }).then(data => {
-        //     setFileData(files => [...files, {[filename]:data}]); // pushing json data by key of filename
-        //     console.log(data)
-        // } 
-        //     )
-        // var customData = require(`C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/Daniel.json`); 
-        // var data = `C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/${filename}`
-        // var data2 = `C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/Daniel.json`
-        // // console.log(data) 
-        // // console.log(data2) 
-        // // list.push(data2)
-
-        // var customData = require(data); 
-        // console.log(customData)
-        
-    // })
-    // var customData = require(list[0]);
-    // console.log(list[0]) 
-    // var d = list[0]
-    // var customData = require(d);
-
-
-
-    // const [fileData, setFileData] = useState([])
-    // useEffect(()=>{
-    //     const fileList = ['Jude.json']; //files list in public folder
-    //     fileList.forEach(filename => {
-    //     // fetch(`C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/${filename}.json`).then(response => {
-    //     //     return response.json() //parse json
-    //     // }).then(data => {
-    //     //     setFileData(files => [...files, {[filename]:data}]); // pushing json data by key of filename
-    //     //     console.log(data)
-    //     // } 
-    //     //     )
-    //     // var customData = require(`C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/Daniel.json`); 
-    //     var data = `C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/${filename}.json`
-    //     var data2 = `C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Bible-kjv-master/Daniel.json`
-    //     console.log(typeof(data)) 
-    //     console.log(typeof(data2)) 
-
-    //     var customData = require(data); 
-
-    //     // console.log(`${filename}.json`)
-    //     })
-    // },[])
-    // console.log(items)
-  return (
-    // <div>Book</div>
-    null
-  )
 }
+
+
+  const renderData = (item) => {
+    return (
+        // console.log(item['data'].book_title)
+
+      
+        <Card style = {styles.cardStyle} onPress = {() => clickedItem(item)}>
+            <Text style = {{fontSize:25}}>{item}</Text>
+        </Card>
+      )
+}
+
+
+  return (
+    <View style={styles.centeredView}>
+            <View style={styles.centeredView}>
+                <View style={[styles.modalView]}>
+                    <FlatList style={{width: 300}}
+                        data={bookChapters}
+                        // keyExtractor={(item) => item.chapter}
+                        renderItem = {({item}) => {
+                            return renderData(item)
+                        }}
+                        // onRefresh = {() => loadData()} 
+                        // refreshing = {loading}
+                        // keyExtractor = {item => `${item.book_title}`}
+
+                    />
+                    
+                </View>
+            </View>      
+    </View>
+  )
+
+
+}
+
+const styles = StyleSheet.create({
+  cardStyle:{
+      padding: 10,
+      margin: 10,
+  },
+
+  fab: {
+      position: 'absolute',
+      margin: 16,
+      right: 0,
+      bottom: 0,
+  },
+  centeredView: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: 22
+    },
+    modalView: {
+      margin: 20,
+      backgroundColor: "white",
+      borderRadius: 20,
+      padding: 35,
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5
+    },
+    button: {
+      borderRadius: 20,
+      padding: 10,
+      elevation: 2
+    },
+    buttonOpen: {
+      backgroundColor: "#F194FF",
+    },
+    buttonClose: {
+      backgroundColor: "#2196F3",
+    },
+    textStyle: {
+      color: "white",
+      fontWeight: "bold",
+      textAlign: "center"
+    },
+    modalText: {
+      marginBottom: 15,
+      textAlign: "center"
+    }
+})
 
 export default Book
