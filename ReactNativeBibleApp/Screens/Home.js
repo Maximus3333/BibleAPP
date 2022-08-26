@@ -55,7 +55,7 @@ function Home(props) {
   
     const clickedItem = (data) => {
         
-        props.navigation.navigate("Book", {data:data})
+        props.navigation.navigate("Chapters", {data:data})
 
     }
 

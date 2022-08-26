@@ -1,155 +1,97 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Button, FlatList, Alert, Modal, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, Modal, Pressable } from 'react-native';
 import { Card, FAB } from 'react-native-paper'; 
-// import RNFS from 'react-native-fs';
-// import * as Things from '../Bible/';
 
-
-
-
-
-
-// function importAll(r) {
-//   let images = {};
-//   r.keys().map((item, index) => { images[item.replace('../', '')] = r(item); });
-//   return images;
-// }
-
-// const images = importAll(require('../Bible'));
 
 var requireContext = require('../Bible/CompleteBible.json');
-// console.log(requireContext[0])
-
-// var loader = require('../Bible/moduleLoader')
-// console.log(loader)
-
-
-// function importAll(r) {
-//   return r.keys().map(r);
-// }
-
-// const images = importAll(require.context('./', false, //.(png|jpe?g|svg|json)$/));
-
 
 
 function Book(props) {
-  const [bookClicked, setBookClicked] = useState([props.route.params.data])
-  const [bookChapters, setbookChapters] = useState([])
+  const [bookClicked, setBookClicked] = useState([props.route.params.data[0]])
+  const [chapterClicked, setchapterClicked] = useState([props.route.params.data[1]])
+  const [chapterClickedVerses, setchapterClickedVerses] = useState([])
 
 
-  // console.log(data)
-  // console.log(bibleData)
-  // console.log(requireContext[0]["book"])
+  // console.log(chapterClicked)
+
   useEffect(() => {    
     requireContext.forEach(element => {
       // console.log(element.book) 
       if (bookClicked == element.book) {
         // console.log(element.book)
-        setbookChapters(element.chapters)
+        element.chapters.forEach(element2 => {
+          // console.log(element2.chapter)
+          if (element2.chapter == chapterClicked) {
+            // console.log(element2)
+            setchapterClickedVerses(element2.verses)
+          }
+        })
+        if (element.chapters.chapter == chapterClicked) {
+          null
+        }
+        // console.log(bookChapters);
         // console.log(Object.keys(bookChapters.chapters))
       }
       
     });
   });
 
-  const clickedItem = (data) => {
+  console.log()
+  const myItemSeparator = () => {
+    return <View style={{ height: 1, backgroundColor: "grey",marginHorizontal:10}} />;
+    };
 
-    data = [] + bookChapters + data 
-        
-    // props.navigation.navigate("Book", {data:data})
-
-}
-
-
-  const renderData = (item) => {
+  const myListEmpty = () => {
     return (
-        // console.log(item['data'].book_title)
+      <View style={{ alignItems: "center" }}>
+      <Text style={styles.item}>No data found</Text>
+      </View>
+    );
+  };
 
-      
-        <Card style = {styles.cardStyle} onPress = {() => clickedItem(item)}>
-            <Text style = {{fontSize:25}}>{item}</Text>
-        </Card>
-      )
-}
+  
 
 
+  
   return (
-    <View style={styles.centeredView}>
-            <View style={styles.centeredView}>
-                <View style={[styles.modalView]}>
-                    <FlatList style={{width: 300}}
-                        data={bookChapters}
-                        // keyExtractor={(item) => item.chapter}
-                        renderItem = {({item}) => {
-                            return renderData(item)
-                        }}
-                        // onRefresh = {() => loadData()} 
-                        // refreshing = {loading}
-                        // keyExtractor = {item => `${item.book_title}`}
-
-                    />
-                    
-                </View>
-            </View>      
-    </View>
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={chapterClickedVerses}
+        renderItem={({ item }) => <Card style = {styles.cardStyle}>
+                                    <Text style={styles.item}>{item.text}</Text>
+                                </Card> }
+        keyExtractor={(item) => item.text}
+        ItemSeparatorComponent={myItemSeparator}
+        ListEmptyComponent={myListEmpty}
+        ListHeaderComponent={() => (
+            
+          <Text style={{ fontSize: 30, textAlign: "center",marginTop:20,fontWeight:'bold',textDecorationLine: 'underline' }}>
+            {`${bookClicked} Chapters`} </Text>
+        )}
+        ListFooterComponent={() => (
+          <Text style={{ fontSize: 30, textAlign: "center",marginBottom:20,fontWeight:'bold' }}>End of Chapters</Text>
+        )}
+      />
+    </SafeAreaView>
   )
-
-
 }
+
+
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 50,
+  },
+  item: {
+    padding: 5,
+    fontSize: 15,
+    marginTop: 5,
+  },
   cardStyle:{
-      padding: 10,
-      margin: 10,
+    padding: 10,
+    margin: 10,
   },
-
-  fab: {
-      position: 'absolute',
-      margin: 16,
-      right: 0,
-      bottom: 0,
-  },
-  centeredView: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      marginTop: 22
-    },
-    modalView: {
-      margin: 20,
-      backgroundColor: "white",
-      borderRadius: 20,
-      padding: 35,
-      alignItems: "center",
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5
-    },
-    button: {
-      borderRadius: 20,
-      padding: 10,
-      elevation: 2
-    },
-    buttonOpen: {
-      backgroundColor: "#F194FF",
-    },
-    buttonClose: {
-      backgroundColor: "#2196F3",
-    },
-    textStyle: {
-      color: "white",
-      fontWeight: "bold",
-      textAlign: "center"
-    },
-    modalText: {
-      marginBottom: 15,
-      textAlign: "center"
-    }
-})
+});
 
 export default Book

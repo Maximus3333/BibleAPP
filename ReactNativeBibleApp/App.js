@@ -2,6 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import Home from './Screens/Home';
 import Book from './Screens/Book';
+import Chapters from './Screens/Chapters';
+
 
 import Constants from 'expo-constants';
 
@@ -38,6 +40,9 @@ function App() {
     <Stack.Navigator>
       <Stack.Screen name='Home' component={Home}
         options = {{title: "Home"}}
+
+      />
+      <Stack.Screen name='Chapters' component={Chapters}
 
       />
       <Stack.Screen name='Book' component={Book}
