@@ -34,29 +34,43 @@ var requireContext = require('../Bible/CompleteBible.json');
 
 function Chapters(props) {
   const [bookClicked, setBookClicked] = useState([props.route.params.data])
-  const [bookChapters, setbookChapters] = useState([])
+  const [bookChapters, setBookChapters] = useState([])
 
 
   // console.log(data)
   // console.log(bibleData)
   // console.log(requireContext[0]["book"])
+  let totalChapters = {}
   useEffect(() => {    
     requireContext.forEach(element => {
       // console.log(element.book) 
+      
+      // array[element.book] = element.chapters.length
+      // console.log(array)
       if (bookClicked == element.book) {
         // console.log(element.book)
-        setbookChapters(element.chapters)
+        setBookChapters(element.chapters)
+        // settotalChapters(bookChapters.length)
+        // console.log(bookChapters.length)
         // console.log(bookChapters);
         // console.log(Object.keys(bookChapters.chapters))
       }
       
     });
+    // setTotalChapter(array) 
   });
+  
+  requireContext.forEach(element => {
+    totalChapters[element.book] = element.chapters.length
+
+
+  });
+
 
   const clickedItem = (data) => {
     let arrayData = []
     // data = [] + data
-    arrayData.push(bookClicked[0], data)
+    arrayData.push(bookClicked[0], data, totalChapters)
     // console.log(data)
         
     props.navigation.navigate("Book", {data:arrayData})
@@ -129,7 +143,7 @@ function Chapters(props) {
             {`${bookClicked} Chapters`} </Text>
         )}
         ListFooterComponent={() => (
-          <Text style={{ fontSize: 30, textAlign: "center",marginBottom:20,fontWeight:'bold' }}>End of Chapters</Text>
+          <Text style={{ fontSize: 30, textAlign: "center",marginBottom:20,fontWeight:'bold' }}>End of Chapter</Text>
         )}
       />
     </SafeAreaView>
