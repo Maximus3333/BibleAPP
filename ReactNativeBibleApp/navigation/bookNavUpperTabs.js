@@ -1,9 +1,15 @@
 
 import React, {useState, useEffect} from 'react';
 import { render } from 'react-dom';
-import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, Modal, Pressable, TouchableOpacity, SectionList } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, Modal, Pressable, TouchableOpacity, SectionList, Alert } from 'react-native';
 import { Card, FAB } from 'react-native-paper'; 
 import Books from '../Books.json';
+// import { connect } from 'react-redux';
+// import { ChangeBook } from '../reduxConfig/action';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveBookData } from '../components/saveToAsync';
+
+
 
 
 // const bookClicked = '';
@@ -11,11 +17,36 @@ import Books from '../Books.json';
 // const verseClicked = '';
 const bibleJson = require('../Bible/CompleteBible.json');
 
-function TableOfContents(props) {
+// const mapDispatchToProps = (dispatch) => {
+//     console.log(dispatch)
+//     return {
+//         changeBook: (item) => dispatch(ChangeBook(item))
+
+//     }
+// }
+// const mapStateToProps = (state) => {
+//     const {currentBook} = state;
+//     alert(currentBook)
+//     console.log("hii")
+//     return {currentBook}
+// }
+
+const TableOfContents = (props) => {
     const [bookNames, setbookNames] = useState([])
     const [bookClicked, setBookClicked] = useState([])
     const [displayContents, setdisplayContents] = useState([])
-    console.log(props)
+    // console.log(props)
+    // const saveName = async (book) => {
+    //     try {
+    //         console.log('yesss',)
+    //         AsyncStorage.setItem('book', book)
+          
+          
+    //     } catch (error) {
+    //       console.log(error)
+          
+    //     }
+    //   }
 
     useEffect(() => {
         setbookNames(Books)
@@ -30,10 +61,15 @@ function TableOfContents(props) {
     }, [bookClicked])
   
     const clickedItem = (item) => {
+        // props.ChangeBook
         // props.sendDataToParent(item)
-        // console.log(item)
+        console.log(item, 'hahaha')
+        saveBookData('book', item)
+
+
         let bookChapters = ''
         let totalChapters = 0
+        
         
         setBookClicked(item)
         bibleJson.forEach(element => {
@@ -61,6 +97,8 @@ function TableOfContents(props) {
         // props.navigation.navigate("Chapters", {data:item})
 
         props.navigation.navigate("Chapters", {data:item, totalChapters, bookChapters})
+        // props.sendDataToParent(item)
+
         
 
     }
@@ -72,10 +110,10 @@ function TableOfContents(props) {
         return (
             // console.log(item['data'].book_title)
             // onPress = {() => clickedItem(item)}
-            <Card style = {styles.cardStyle} onPress = {() => clickedItem(item)}
+            <Pressable style = {styles.cardStyle} onPress = {() => clickedItem(item)}
             >
                 <Text style = {{fontSize:25}}>{item}</Text>
-            </Card>
+            </Pressable>
           )
     }
     // console.log(data)
@@ -171,13 +209,14 @@ function Chapters(props) {
         // console.log(totalChapters)
     }
     
-        console.log(array)
+        // console.log(array)
 
 
 
     // console.log(totalChapters)
     const clickedItem = (item) => {
-        console.log(item)
+        // console.log(item.i)
+        saveBookData('chapter', item.i)
         let chapterClicked = item.i
         let chapVersLength = 0
         bibleJson.forEach(element => {
@@ -185,12 +224,12 @@ function Chapters(props) {
             // console.log(element.book) 
             if (bookClicked == element.book) {
             // console.log(element.book)
-                console.log(bookClicked)
+                // console.log(bookClicked)
             element.chapters.forEach(element2 => {
               // console.log(element2.chapter)
               if (element2.chapter == item.i) {
                 // console.log(element2)
-                console.log(element2.verses.length)
+                // console.log(element2.verses.length)
                 chapVersLength = element2.verses.length
               }
             })
@@ -240,7 +279,7 @@ function Verses( props ) {
                 setBookClicked(props.route.params.bookClicked)
                 setchapterClicked(props.route.params.chapterClicked)
                 setClickedVersesLen(props.route.params.chapVersLength)
-                console.log(props.route.params)
+                // console.log(props.route.params)
                 // console.log(bookClicked)
     
           
@@ -259,7 +298,7 @@ function Verses( props ) {
         // console.log(totalChapters)
     }
     
-    console.log(array)
+    // console.log(array)
 
     const clickedItem = (item) => {
         let verseClicked = item.i
@@ -294,5 +333,7 @@ const styles = StyleSheet.create({
         // backgroundColor: '#8fcbbc',
     }
 })
+
+// export default connect(mapStateToProps, mapDispatchToProps)(TableOfContents);
 
 export {TableOfContents, Chapters, Verses};

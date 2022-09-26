@@ -6,6 +6,8 @@ import { StyleSheet, Text, View, Dimensions } from 'react-native';
 
 
 import Constants from 'expo-constants';
+import * as React from 'react';
+
 
 import {NavigationContainer} from '@react-navigation/native'
 import {createStackNavigator} from '@react-navigation/stack'
@@ -13,6 +15,10 @@ import 'react-native-gesture-handler';
 import { TabNavigator } from 'react-navigation'
 import { Title } from 'react-native-paper';
 import Tabs from './navigation/tabs';
+import { Provider } from 'react-redux';
+import { store } from './reduxConfig/store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 
@@ -31,23 +37,32 @@ import Tabs from './navigation/tabs';
 
 //   );
 // }
+const PERSISTENCE_KEY = 'NAVIGATION_STATE_V1';
 
 const App = () => {
-  // const MainNavigator = TabNavigator({
-  //   Bible : { screen: Contents}
 
-  //   })
+  
   return(
-    // <MainNavigator/>
-    // const MainNavigator = TabNavigator({
-
-    // })
-    
     <NavigationContainer>
       <Tabs />
     </NavigationContainer>
   );
+
+    // <Provider store={store}>
+    //   <Navigators/>
+    // </Provider>
+  // );
 }
+
+// const Navigators = () => {
+//   // const MainNavigator = TabNavigator({
+//   //   Bible : { screen: Contents}
+
+//   //   })
+//   return(
+
+    
+// }
 
 export default App;
 // const Stack = createStackNavigator()

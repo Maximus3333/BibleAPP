@@ -1,9 +1,13 @@
-import React, {useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef, } from 'react';
 import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, Dimensions, TouchableOpacity } from 'react-native';
 import { Card, FAB } from 'react-native-paper'; 
 import { Icon } from 'react-native-elements';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import Books from 'C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Books.json';  
+import Books from 'C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Books.json'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveBookData } from '../components/saveToAsync';
+// import storage from '@redux-persist/lib/storage';
+
 
 
 
@@ -13,81 +17,161 @@ var bibleJson = require('../Bible/CompleteBible.json');
 
 
 function Book(props) {
-  const [bookClicked, setBookClicked] = useState('Matthew')
+  // 
+  const [bookClicked, setBookClicked] = useState()
+  const [verseNumClicked, setVerseNumClicked] = useState()
+  const [verseTextClicked, setVerseTextClicked] = useState()
+
   const [chapterClicked, setchapterClicked] = useState(1)
   const [chapterClickedVerses, setchapterClickedVerses] = useState([])
   const totalChapters = []
   const [shouldShow, setShouldShow] = useState(false);
 
+  
 
-
-  // console.log(totalChapters)
-
-
-
-  const indexOfBook = parseInt(Books.findIndex(object => object == bookClicked ))
-
-
-
-  bibleJson.forEach(element => {
-    totalChapters[element.book] = element.chapters.length
-
-
-  });
-  // console.log(chapterClicked)
   const loadVerses = () => {
-    bibleJson.forEach(element => {
-      // console.log(element.book) 
+    bibleJson.every(element => {
+      // console.log(element.book)
+      // console.log(bookClicked)
       if (bookClicked == element.book) {
-        // console.log(element.book)
+        // console.log('bookClicked')
         element.chapters.forEach(element2 => {
-          // console.log(element2.chapter)
           if (element2.chapter == chapterClicked) {
-            // console.log(element2)
             setchapterClickedVerses(element2.verses)
           }
         })
         if (element.chapters.chapter == chapterClicked) {
           null
         }
-        // console.log(bookChapters);
-        // console.log(Object.keys(bookChapters.chapters))
+        return false;
       }
-      
+      return true;
+
       
     });
   }
+  const getBookData2 = async (bookKey, chapterKey) => {
+    try {
+      
+      let bookName = await AsyncStorage.getItem(bookKey)
+      let chapter = await AsyncStorage.getItem(chapterKey)
+      if (bookName == undefined) {
+        bookName = 'Matthew'
+
+      }
+      if (chapter == undefined) {
+        chapter = 1
+        console.log(chapter, 'yoo2')
+      }
+      setBookClicked(bookName)
+      setchapterClicked(chapter)
+      props.sendDataToParent(bookName)     
+      
+
+      
+    } catch (error) {
+      
+    }
+  }
+  // const getBookData = async (key) => {
+  //   let isMounted = true
+  //   try {
+  //     // if (key == 'chapter') {
+  //     //   const chapter = await AsyncStorage.getItem(key).then(() => {
+  //     //     setchapterClicked(JSON.parse(chapter))
+
+  //     //   });
+        
+  //     // }else {
+  //       let name = await AsyncStorage.getItem(key).then(() => {
+  //         if (isMounted) {
+  //           // if (name == undefined) {
+  //           //   name = 'Matthew'
+    
+  //           // }
+  //           console.log('mounted', name)
+  //           setBookClicked(name)
+  //           // props.sendDataToParent(name)
+
+            
+  //         }
+          
+
+  //       });
+  //       return () => {
+  //         console.log('unmounting')
+
+  //         isMounted = false;
+  //         };
+        
+        
+  //     // }
+            
+  //   } catch (error) {
+  //     console.log('error')
+      
+  //   }
+    
+  // }
+  
+  // getBookData('chapter')
+  // loadVerses()
+
+  const indexOfBook = parseInt(Books.findIndex(object => object == bookClicked ))
+
+  bibleJson.forEach(element => {
+    totalChapters[element.book] = element.chapters.length
+
+
+  });
+  
 
   useEffect(() => {
+    getBookData2('book', 'chapter')
+  
+  
+  }, [])
+  
+
+  useEffect(() => {
+    
+
+
     loadVerses()
+  }, [bookClicked, chapterClicked])
+
+  useEffect(() => {
+    
+
     if (props.route.params) {
-
-      setBookClicked(props.route.params.bookClicked)
-      props.sendDataToParent(props.route.params.bookClicked)
-      setchapterClicked(props.route.params.chapterClicked)
-      loadVerses()
+      // setBookClicked(props.route.params.bookClicked)
+      getBookData2('book', 'chapter')
     }
-    // console.log(props.route.params)
 
+    
   }, [props]);
+
   const arrowClick  = (leftOrRight) => {
     if (parseInt(chapterClicked) == 1 & leftOrRight == 'left') {
       const prevBook = Books[indexOfBook-1]
       setchapterClicked(totalChapters[prevBook])
       console.log(totalChapters[prevBook])
       setBookClicked(prevBook)
+      saveBookData('book', prevBook)
+
+
 
     }else if (parseInt(chapterClicked) == totalChapters[bookClicked] & leftOrRight == 'right') {
       const nextBook = Books[indexOfBook+1]
       setchapterClicked(1)
       console.log(totalChapters[nextBook])
       setBookClicked(nextBook)
+      saveBookData('book', nextBook)
+
 
     }else if (leftOrRight == 'left') {
 
-      setchapterClicked(parseInt(chapterClicked)-1)
-      // console.log(parseInt(chapterClicked))
-      
+      setchapterClicked(parseInt(chapterClicked)-1)      
 
     } else if (leftOrRight == 'right') {
       setchapterClicked(parseInt(chapterClicked)+1)
@@ -97,7 +181,6 @@ function Book(props) {
     
   }
 
-  console.log()
   const myItemSeparator = () => {
     return <View style={{ height: 1, backgroundColor: "grey",marginHorizontal:10}} />;
     };
@@ -114,24 +197,22 @@ function Book(props) {
   const {height} = Dimensions.get('window')
   const windowWidth = Dimensions.get('window').width;
 
-  const onPress = () => setShouldShow(!shouldShow);
+  const onPress = (item) => {
+    console.log(item)
+    setVerseNumClicked(item.verse)
+    setVerseTextClicked(item.text)
+    setShouldShow(!shouldShow)};
 
   
-  
-
-  
-
-
   
   return (
     <SafeAreaView style={styles.container}
-                  // onPress={onPress}
     >
       <FlatList style={{height:100, padding: 10}}
         data={chapterClickedVerses}
         renderItem={({ item }) =>  <TouchableOpacity
                                     activeOpacity={.7}
-                                    onPress={onPress}
+                                    onPress={() => {onPress(item)}}
                                     >
                                     <Text style={styles.item}>{item.text}</Text>
                                   </TouchableOpacity>
@@ -166,7 +247,7 @@ function Book(props) {
           showBackdrop={false}>
           <View style={styles.panel}>
             <View style={styles.panelHeader}>
-              <Text style={{color: '#FFF'}}>Bottom Sheet Peek</Text>
+              <Button title='BookMark' onPress={() => props.navigation.navigate('createBookmark', {bookClicked, chapterClicked, verseNumClicked, verseTextClicked})}></Button>
             </View>
             <View style={styles.container2}>
               <Text>Bottom Sheet Content</Text>
@@ -249,67 +330,3 @@ const styles = StyleSheet.create({
 export default Book
 
 
-
-// const styles = {
-//   container2: {
-//     flex: 1,
-//     backgroundColor: '#f8f9fa',
-//     alignItems: 'center',
-//     justifyContent: 'center'
-//   },
-//   panel: {
-//     flex: 1,
-//     backgroundColor: 'white',
-//     position: 'relative'
-//   },
-//   panelHeader: {
-//     height: 120,
-//     backgroundColor: '#b197fc',
-//     alignItems: 'center',
-//     justifyContent: 'center'
-//   },
-//   favoriteIcon: {
-//     position: 'absolute',
-//     top: -24,
-//     right: 24,
-//     backgroundColor: '#2b8a3e',
-//     width: 48,
-//     height: 48,
-//     padding: 8,
-//     borderRadius: 24,
-//     zIndex: 1
-//   }
-// }
-
-// export default class MyComponent extends React.Component {
-
-//   click  = () => {
-//     this._panel.props.draggableRange.bottom = 120
-//     console.log(this._panel.props.draggableRange.bottom)
-//     // console.log(u)
-
-//   };
-//   render() {
-//     return (
-//       <View style={styles.container}>
-//         <Text onPress={this.click}>Hello world</Text>
-//         <SlidingUpPanel
-          
-//           draggableRange={{top: height / 2.75, bottom: 120}}
-//           animatedValue={this._draggedValue}
-//           showBackdrop={false}>
-//           <View style={styles.panel}>
-//             <View style={styles.panelHeader}>
-//               <Text style={{color: '#FFF'}}>Bottom Sheet Peek</Text>
-//             </View>
-//             <View style={styles.container}>
-//               <Text>Bottom Sheet Content</Text>
-//             </View>
-//           </View>
-//         </SlidingUpPanel>
-//       </View>
-//     )
-//   }
-// }
-
-// AppRegistry.registerComponent('navigation', () => MyComponent)

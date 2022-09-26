@@ -14,6 +14,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { StackRouter } from 'react-navigation';
 import Contents from '../Screens/tableOfContents';
 import {TableOfContents, Chapters, Verses} from './bookNavUpperTabs';
+import CreateBookMark from '../Screens/BookmarkCreate';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ProfileMainScreen from '../Screens/ProfileMainScreen';
+
 
 
 const Tab = createBottomTabNavigator();
@@ -21,6 +25,24 @@ const Tab = createBottomTabNavigator();
 const Tabs = () => {
 
     const [currentBook, setCurrentBook] = useState('Matthew');
+
+    // const getBookName = async () => {
+    //     try {
+    //         let name = await AsyncStorage.getItem('book')
+    //         if (name != undefined) {
+    //             setCurrentBook(name)
+    
+    //         }
+    //         // props.sendDataToParent(name)
+                
+    //     } catch (error) {
+    //       console.log('error')
+          
+    //     }
+    //   }
+    
+    // getBookName()
+
     // const [displayContents, setdisplayContents] = useState()
     const sendDataToParent = (index) => { // the callback. Use a better name
         console.log(index);
@@ -41,7 +63,7 @@ const Tabs = () => {
     const BookChapVerseScreens = ({navigation}) => {
         return (
         <BookNavigatorTab.Navigator>
-            <BookNavigatorTab.Screen name="Books" component={TableOfContents}/>
+            <BookNavigatorTab.Screen name="Books" component={TableOfContents} />
             {/* {(props) => <TableOfContents {...props} sendDataToParent={sendDataToParent} />}
             </BookNavigatorTab.Screen> */}
             <BookNavigatorTab.Screen name="Chapters" component={Chapters} />
@@ -57,7 +79,7 @@ const Tabs = () => {
     const BibleScreens = ({navigation}) => {
         return (
             <BibleStack.Navigator>
-                <BibleStack.Screen name='currentBook' options={{
+                <BibleStack.Screen name='currentBook'  options={{
                 headerTitle: '',
                 headerStyle: {
                     backgroundColor: 'grey',
@@ -83,14 +105,28 @@ const Tabs = () => {
                 headerTintColor: 'black',
                 headerTitleStyle: {
             fontWeight: 'bold',
-          },
-        }}>
-             {(props) => <Book {...props} sendDataToParent={sendDataToParent} />}
+            },
+            }}>
+                            {(props) => <Book {...props} sendDataToParent={sendDataToParent} />}
 
-        </BibleStack.Screen>
+            </BibleStack.Screen>
+
+
+                <BibleStack.Screen name='createBookmark' component={CreateBookMark}/>
                 <BibleStack.Screen name='navigateBible' component={BookChapVerseScreens}/>
             </BibleStack.Navigator>
 
+        )
+    }
+
+    const ProfileStack = createStackNavigator()
+    const ProfileScreens = ({navigation}) => {
+        return(
+            <ProfileStack.Navigator>
+                <ProfileStack.Screen name='mainScreen' component={ProfileMainScreen}>
+
+                </ProfileStack.Screen>
+            </ProfileStack.Navigator>
         )
     }
 
@@ -104,6 +140,12 @@ const Tabs = () => {
         // children={()=>{displayContents ? <Contents  sendDataToParent={sendDataToParent} defaultBook={currentBook} displayContents={displayContents} /> : Tool}}
             >
                 {/* {(props) => <Contents  sendDataToParent={sendDataToParent} defaultBook={currentBook} displayContents={displayContents} />} */}
+            </Tab.Screen>
+            <Tab.Screen name="Profile"
+                component={ProfileScreens}
+                options={{headerShown: false}}
+            >
+
             </Tab.Screen>
               
 
