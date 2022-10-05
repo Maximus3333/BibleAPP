@@ -18,6 +18,7 @@ import Tabs from './navigation/tabs';
 import { Provider } from 'react-redux';
 import { store } from './reduxConfig/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import OnboardingScreen from './Screens/OnboardingScreen';
 
 
 
@@ -40,13 +41,42 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const PERSISTENCE_KEY = 'NAVIGATION_STATE_V1';
 
 const App = () => {
+  const LoginAndOnboardingStack = createStackNavigator()
+  const [isFirstLaunch, setIsFirstLaunch] = React.useState(null)
 
-  
-  return(
-    <NavigationContainer>
-      <Tabs />
+  React.useEffect(() => {
+    AsyncStorage.getItem('alreadyLaunched').then(value => {
+      if (value == null) {
+        AsyncStorage.setItem('alreadyLaunched', 'true');
+        setIsFirstLaunch(true);
+      }else {
+        setIsFirstLaunch(false);
+      }
+    })
+  }, [])
+
+  if (isFirstLaunch == null) {
+    return null;
+  } else if (isFirstLaunch == true) {
+    return (
+      <NavigationContainer>
+      <LoginAndOnboardingStack.Navigator>
+        <LoginAndOnboardingStack.Screen name="Onboarding" component={OnboardingScreen}/>
+      </LoginAndOnboardingStack.Navigator>
+      {/* <Tabs /> */}
     </NavigationContainer>
-  );
+      
+    )
+  }else {
+    return (
+      <NavigationContainer>
+        <Tabs />
+
+      </NavigationContainer>
+    )
+  }
+
+
 
     // <Provider store={store}>
     //   <Navigators/>

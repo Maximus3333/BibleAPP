@@ -1,11 +1,13 @@
 import React, {useState, useEffect, useRef, } from 'react';
-import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, Dimensions, TouchableOpacity, Share } from 'react-native';
 import { Card, FAB } from 'react-native-paper'; 
 import { Icon } from 'react-native-elements';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import Books from 'C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Books.json'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { saveBookData } from '../components/saveToAsync';
+// import * as Sharing from 'expo-sharing';
+// import Share from 'react-native-share'
 // import storage from '@redux-persist/lib/storage';
 
 
@@ -28,7 +30,7 @@ function Book(props) {
   const [shouldShow, setShouldShow] = useState(false);
 
   
-
+  
   const loadVerses = () => {
     bibleJson.every(element => {
       // console.log(element.book)
@@ -203,6 +205,49 @@ function Book(props) {
     setVerseTextClicked(item.text)
     setShouldShow(!shouldShow)};
 
+  const viewRef = useRef();
+
+  const shareVerse = async () => {
+    try {
+      const uri = verseTextClicked
+      console.log(uri, "haha")
+      await Share.share(
+        {
+          title: 'test title',
+          message: uri,
+        },
+        {
+          // excludedActivityTypes: [
+          //   // 'com.apple.UIKit.activity.PostToWeibo',
+          //   // 'com.apple.UIKit.activity.Print',
+          //   // 'com.apple.UIKit.activity.CopyToPasteboard',
+          //   // 'com.apple.UIKit.activity.AssignToContact',
+          //   // 'com.apple.UIKit.activity.SaveToCameraRoll',
+          //   // 'com.apple.UIKit.activity.AddToReadingList',
+          //   // 'com.apple.UIKit.activity.PostToFlickr',
+          //   // 'com.apple.UIKit.activity.PostToVimeo',
+          //   // 'com.apple.UIKit.activity.PostToTencentWeibo',
+          //   // 'com.apple.UIKit.activity.AirDrop',
+          //   // 'com.apple.UIKit.activity.OpenInIBooks',
+          //   // 'com.apple.UIKit.activity.MarkupAsPDF',
+          //   // 'com.apple.reminders.RemindersEditorExtension',
+          //   // 'com.apple.mobilenotes.SharingExtension',
+          //   // 'com.apple.mobileslideshow.StreamShareService',
+          //   // 'com.linkedin.LinkedIn.ShareExtension',
+          //   // 'pinterest.ShareExtension',
+          //   // 'com.google.GooglePlus.ShareExtension',
+          //   // 'com.tumblr.tumblr.Share-With-Tumblr',
+          //   // 'net.whatsapp.WhatsApp.ShareExtension', //WhatsApp
+          // ],
+        }
+      );
+      
+    } catch (error) {
+      console.log(error)
+      
+    }
+  }
+
   
   
   return (
@@ -214,7 +259,7 @@ function Book(props) {
                                     activeOpacity={.7}
                                     onPress={() => {onPress(item)}}
                                     >
-                                    <Text style={styles.item}>{item.text}</Text>
+                                    <Text style={styles.item} ref={viewRef}>{item.text}</Text>
                                   </TouchableOpacity>
                                 }
         keyExtractor={(item) => item.verse}
@@ -248,6 +293,7 @@ function Book(props) {
           <View style={styles.panel}>
             <View style={styles.panelHeader}>
               <Button title='BookMark' onPress={() => props.navigation.navigate('createBookmark', {bookClicked, chapterClicked, verseNumClicked, verseTextClicked})}></Button>
+              <Button title='Share' onPress={() => {shareVerse()}}></Button>
             </View>
             <View style={styles.container2}>
               <Text>Bottom Sheet Content</Text>
