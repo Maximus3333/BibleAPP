@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, Button, FlatList, TextInput, Alert, Modal, Pressable } from 'react-native';
 import { Card, FAB } from 'react-native-paper';
-import Books from '../Books.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 

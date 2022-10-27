@@ -4,7 +4,7 @@ import { Button, ButtonGroup, withTheme, Text } from '@rneui/themed';
 
 
 
-function ProfileMainScreen() {
+function ProfileMainScreen(props) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [selectedIndexes, setSelectedIndexes] = useState([0, 2, 3]);
     const CustomTitle = () => {
@@ -61,13 +61,14 @@ function ProfileMainScreen() {
               }}
             />
             <Button
-              title="PROFILE"
+              title="BooKMarks"
               icon={{
                 name: 'user',
                 type: 'font-awesome',
                 size: 15,
                 color: 'white',
               }}
+              onPress={() => props.navigation.navigate('bookMarks')}
               iconRight
               iconContainerStyle={{ marginLeft: 10 }}
               titleStyle={{ fontWeight: '700' }}

@@ -1,42 +1,33 @@
 import React, {useState, useEffect, useRef, } from 'react';
 import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, Dimensions, TouchableOpacity, Share } from 'react-native';
-import { Card, FAB } from 'react-native-paper'; 
 import { Icon } from 'react-native-elements';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import Books from 'C:/Users/mdeis/ProgrammingProjects/bibleApp/ReactNativeBibleApp/Books.json'; 
+import BookNames from '../jsonFiles/BookNames.json'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { saveBookData } from '../components/saveToAsync';
-// import * as Sharing from 'expo-sharing';
-// import Share from 'react-native-share'
-// import storage from '@redux-persist/lib/storage';
+import { saveBookData } from '../reusableComponents/saveToAsync';
 
 
 
 
 
-var bibleJson = require('../Bible/CompleteBible.json');
+var bibleJson = require('../jsonFiles/CompleteBible.json');
 
 
 
 function Book(props) {
-  // 
   const [bookClicked, setBookClicked] = useState()
   const [verseNumClicked, setVerseNumClicked] = useState()
   const [verseTextClicked, setVerseTextClicked] = useState()
-
   const [chapterClicked, setchapterClicked] = useState(1)
   const [chapterClickedVerses, setchapterClickedVerses] = useState([])
   const totalChapters = []
   const [shouldShow, setShouldShow] = useState(false);
 
   
-  
+  // useEffect to load Book, chapter, and verses to screen
   const loadVerses = () => {
     bibleJson.every(element => {
-      // console.log(element.book)
-      // console.log(bookClicked)
       if (bookClicked == element.book) {
-        // console.log('bookClicked')
         element.chapters.forEach(element2 => {
           if (element2.chapter == chapterClicked) {
             setchapterClickedVerses(element2.verses)
@@ -49,9 +40,10 @@ function Book(props) {
       }
       return true;
 
-      
     });
   }
+
+  //Gets saved data which user left off such as book, and chapter from async
   const getBookData2 = async (bookKey, chapterKey) => {
     try {
       
@@ -75,55 +67,12 @@ function Book(props) {
       
     }
   }
-  // const getBookData = async (key) => {
-  //   let isMounted = true
-  //   try {
-  //     // if (key == 'chapter') {
-  //     //   const chapter = await AsyncStorage.getItem(key).then(() => {
-  //     //     setchapterClicked(JSON.parse(chapter))
 
-  //     //   });
-        
-  //     // }else {
-  //       let name = await AsyncStorage.getItem(key).then(() => {
-  //         if (isMounted) {
-  //           // if (name == undefined) {
-  //           //   name = 'Matthew'
-    
-  //           // }
-  //           console.log('mounted', name)
-  //           setBookClicked(name)
-  //           // props.sendDataToParent(name)
-
-            
-  //         }
-          
-
-  //       });
-  //       return () => {
-  //         console.log('unmounting')
-
-  //         isMounted = false;
-  //         };
-        
-        
-  //     // }
-            
-  //   } catch (error) {
-  //     console.log('error')
-      
-  //   }
-    
-  // }
-  
-  // getBookData('chapter')
-  // loadVerses()
-
-  const indexOfBook = parseInt(Books.findIndex(object => object == bookClicked ))
+  // gets the order of current book in bible
+  const indexOfBook = parseInt(BookNames.findIndex(object => object == bookClicked ))
 
   bibleJson.forEach(element => {
     totalChapters[element.book] = element.chapters.length
-
 
   });
   
@@ -143,19 +92,17 @@ function Book(props) {
   }, [bookClicked, chapterClicked])
 
   useEffect(() => {
-    
-
     if (props.route.params) {
-      // setBookClicked(props.route.params.bookClicked)
       getBookData2('book', 'chapter')
     }
-
-    
+ 
   }, [props]);
 
+
+  // navigates through bible chapters and books on arrowclick
   const arrowClick  = (leftOrRight) => {
     if (parseInt(chapterClicked) == 1 & leftOrRight == 'left') {
-      const prevBook = Books[indexOfBook-1]
+      const prevBook = BookNames[indexOfBook-1]
       setchapterClicked(totalChapters[prevBook])
       console.log(totalChapters[prevBook])
       setBookClicked(prevBook)
@@ -164,7 +111,7 @@ function Book(props) {
 
 
     }else if (parseInt(chapterClicked) == totalChapters[bookClicked] & leftOrRight == 'right') {
-      const nextBook = Books[indexOfBook+1]
+      const nextBook = BookNames[indexOfBook+1]
       setchapterClicked(1)
       console.log(totalChapters[nextBook])
       setBookClicked(nextBook)
@@ -199,6 +146,7 @@ function Book(props) {
   const {height} = Dimensions.get('window')
   const windowWidth = Dimensions.get('window').width;
 
+  // gets verse onpress and hides/unhides popup
   const onPress = (item) => {
     console.log(item)
     setVerseNumClicked(item.verse)
@@ -207,6 +155,7 @@ function Book(props) {
 
   const viewRef = useRef();
 
+  // allows popup to share verse
   const shareVerse = async () => {
     try {
       const uri = verseTextClicked
@@ -247,6 +196,7 @@ function Book(props) {
       
     }
   }
+  // console.log(chapterClickedVerses)
 
   
   

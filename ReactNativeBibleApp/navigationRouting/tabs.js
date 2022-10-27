@@ -1,22 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-
-
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, Button, FlatList, Alert, Modal, Pressable } from 'react-native';
-import Book from '../Screens/Book';
-// import Chapters from '../Screens/Chapters';
-import Books from '../Books.json';  
-// import Contents from '../components/tableOfContents';
-import Tool from '../components/tool';
+import Book from '../screens/Book';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StackRouter } from 'react-navigation';
-import Contents from '../Screens/tableOfContents';
-import {TableOfContents, Chapters, Verses} from './bookNavUpperTabs';
-import CreateBookMark from '../Screens/BookmarkCreate';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import ProfileMainScreen from '../Screens/ProfileMainScreen';
+import {TableOfContents, Chapters, Verses} from './bibleNavigateUpperTabs';
+import CreateBookMark from '../screens/BookmarkCreate';
+import ProfileMainScreen from '../screens/ProfileMainScreen';
+import BookMarks from '../screens/BookMarks';
 
 
 
@@ -26,46 +17,17 @@ const Tabs = () => {
 
     const [currentBook, setCurrentBook] = useState('Matthew');
 
-    // const getBookName = async () => {
-    //     try {
-    //         let name = await AsyncStorage.getItem('book')
-    //         if (name != undefined) {
-    //             setCurrentBook(name)
-    
-    //         }
-    //         // props.sendDataToParent(name)
-                
-    //     } catch (error) {
-    //       console.log('error')
-          
-    //     }
-    //   }
-    
-    // getBookName()
-
-    // const [displayContents, setdisplayContents] = useState()
     const sendDataToParent = (index) => { // the callback. Use a better name
         console.log(index);
         setCurrentBook(index);
       };
 
-    //   useEffect(() => {
-    //     setdisplayContents(false)
-
-
-    //     // loadData();
-    //     // const willFocusSubscription = props.navigation.addListener('focus', () => {
-    //     //     loadData();
-    //     // });
-
-    // }, [])
+   
     const BookNavigatorTab = createMaterialTopTabNavigator();
     const BookChapVerseScreens = ({navigation}) => {
         return (
         <BookNavigatorTab.Navigator>
             <BookNavigatorTab.Screen name="Books" component={TableOfContents} />
-            {/* {(props) => <TableOfContents {...props} sendDataToParent={sendDataToParent} />}
-            </BookNavigatorTab.Screen> */}
             <BookNavigatorTab.Screen name="Chapters" component={Chapters} />
             <BookNavigatorTab.Screen name="Verses" component={Verses} />
 
@@ -126,6 +88,9 @@ const Tabs = () => {
                 <ProfileStack.Screen name='mainScreen' component={ProfileMainScreen}>
 
                 </ProfileStack.Screen>
+                <ProfileStack.Screen name='bookMarks' component={BookMarks}>
+                    
+                </ProfileStack.Screen>
             </ProfileStack.Navigator>
         )
     }
@@ -136,10 +101,8 @@ const Tabs = () => {
             <Tab.Screen name="Bible"
                 component={BibleScreens}
                 options={{headerShown: false}}
-                
-        // children={()=>{displayContents ? <Contents  sendDataToParent={sendDataToParent} defaultBook={currentBook} displayContents={displayContents} /> : Tool}}
             >
-                {/* {(props) => <Contents  sendDataToParent={sendDataToParent} defaultBook={currentBook} displayContents={displayContents} />} */}
+
             </Tab.Screen>
             <Tab.Screen name="Profile"
                 component={ProfileScreens}
@@ -147,8 +110,6 @@ const Tabs = () => {
             >
 
             </Tab.Screen>
-              
-
         </Tab.Navigator>
     )
 }

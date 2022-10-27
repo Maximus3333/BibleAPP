@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
+// Stores last Book and chapter user was on
 const saveBookData = async (key, item) => {
     try {
         if (key == 'chapter') {
