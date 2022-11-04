@@ -27,8 +27,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF",
         "package": "com.YourBible.ReactNativeBibleApp"
-
-      }
+      },
+      "package": "com.YourBible.ReactNativeBibleApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

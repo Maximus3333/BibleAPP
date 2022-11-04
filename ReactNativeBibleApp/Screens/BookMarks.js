@@ -4,6 +4,7 @@ import { Card, FAB } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
+
 function BookMarks() {
     const [bookMarks, setBookMarks] = useState([]);
 
@@ -20,7 +21,7 @@ function BookMarks() {
           }
           bookMarks = JSON.parse(bookMarks)
           setBookMarks(bookMarks)
-          console.log(bookMarks)
+          // console.log(bookMarks)
            
           
     
@@ -32,20 +33,50 @@ function BookMarks() {
 
       useEffect(() => {
         getBookData2()
-        console.log(bookMarks)
+        // console.log(bookMarks)
 
       }, [])
+    //   PhotoEditor.Edit({
+    //     path: RNFS.DocumentDirectoryPath + "../assets/censor.png"
+    // });
+    // const View1 = ({item}) => {
+    //   return(
+    //     <Text>{item.verse}{item.text}</Text>
+    //     )
+    // };
+    const renderItem = ({item}) => {
+      let items = [] 
+      // for(const verse of item.verses) {
+        items = item.verses.map(verse => {
+          return <Text>{verse.verse}{verse.text}</Text>
+        })
+        return (
+          <View style={styles.container}>
+            <Text >
+              {item.book}
+            </Text>
+            {items}
+          </View>
+        )
+        
+        // return(
+        // <Text>{verse.verse}{verse.text}</Text>
+        // )
+      // }
+    };
 
 
   return (
         <SafeAreaView style={styles.container}>
         <FlatList 
             data={bookMarks}
-            renderItem={({ item, index }) => <Text style={styles.item}>{item.book}</Text>}
+            renderItem={renderItem}
+            // renderItem={({ item, index }) => <Text style={styles.item}>{item.book}</Text>}
             
             
         />
         </SafeAreaView>
+        
         
     
     

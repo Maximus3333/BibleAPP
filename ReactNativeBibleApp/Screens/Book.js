@@ -18,6 +18,7 @@ function Book(props) {
   const [bookClicked, setBookClicked] = useState()
   const [verseNumClicked, setVerseNumClicked] = useState()
   const [verseTextClicked, setVerseTextClicked] = useState()
+  const [selectedVerse, setSelectedVerse] = useState([])
   const [chapterClicked, setchapterClicked] = useState(1)
   const [chapterClickedVerses, setchapterClickedVerses] = useState([])
   const totalChapters = []
@@ -147,11 +148,51 @@ function Book(props) {
   const windowWidth = Dimensions.get('window').width;
 
   // gets verse onpress and hides/unhides popup
+  // let selectedVerse = []
+  // console.log("yooooooooooo")
   const onPress = (item) => {
-    console.log(item)
-    setVerseNumClicked(item.verse)
-    setVerseTextClicked(item.text)
-    setShouldShow(!shouldShow)};
+    // console.log(item)
+    if (shouldShow == false){
+      // console.log(selectedVerse)
+
+      setShouldShow(!shouldShow)
+      setSelectedVerse([item])
+      // console.log(selectedVerse)
+      // setVerseNumClicked(item.verse)
+      // setVerseTextClicked(item.text)
+      
+    }else {
+      // console.log("yoo")
+      // console.log(item.text)
+      // console.log(verseTextClicked)
+      // console.log("hi")
+      // selectedVerse.push(item)
+      // console.log(selectedVerse)
+      const index = selectedVerse.indexOf(item)
+      // // console.log("hahaaa")
+      console.log(index)
+
+      if (index > -1) {
+        console.log(selectedVerse);
+        // console.log(selectedVerse[index]);
+        let selectedVerseRep = selectedVerse
+        selectedVerseRep.splice(index, 1)
+        console.log(selectedVerseRep)
+        setSelectedVerse(selectedVerseRep)
+        // // console.log(selectedVerse)
+        if (selectedVerseRep.length == 0){
+          // console.log('hahah')
+          setShouldShow(!shouldShow)
+        }
+      }else {
+        setSelectedVerse([ ... selectedVerse, item])
+        // console.log(selectedVerse)
+      }
+      
+      
+    }
+    }
+    
 
   const viewRef = useRef();
 
@@ -242,7 +283,29 @@ function Book(props) {
           showBackdrop={false}>
           <View style={styles.panel}>
             <View style={styles.panelHeader}>
-              <Button title='BookMark' onPress={() => props.navigation.navigate('createBookmark', {bookClicked, chapterClicked, verseNumClicked, verseTextClicked})}></Button>
+              <Button title='BookMark' onPress={() => {
+              let verse_nums = [] 
+              for (let i=0; i < selectedVerse.length; i++){
+                verse_nums.push(parseInt(selectedVerse[i].verse))
+              }
+              verse_nums.sort()
+              let flag = true
+              for (let i=0; i < verse_nums.length-1; i++){
+                if (verse_nums[i+1] - verse_nums[i] != 1){
+                  flag = false
+                } 
+
+              }
+              if (flag==true){
+                props.navigation.navigate('createBookmark', {bookClicked, chapterClicked, selectedVerse})
+              }else {
+                alert("verses not in order")
+              }
+
+              
+              }
+              
+              }></Button>
               <Button title='Share' onPress={() => {shareVerse()}}></Button>
             </View>
             <View style={styles.container2}>
