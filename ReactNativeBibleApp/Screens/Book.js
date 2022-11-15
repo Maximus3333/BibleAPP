@@ -1,34 +1,26 @@
-import React, {useState, useEffect, useRef, } from 'react';
-import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, Dimensions, TouchableOpacity, Share } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { StyleSheet, Text, View, SafeAreaView, Dimensions, TouchableOpacity, Share } from 'react-native';
 import { Icon } from 'react-native-elements';
-import SlidingUpPanel from 'rn-sliding-up-panel';
-import BookNames from '../jsonFiles/BookNames.json'; 
+import BookNames from '../jsonFiles/BookNames.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { saveBookData } from '../reusableComponents/saveToAsync';
 
-
-
-
+import { getHighlightedVerses, saveHighlightedVerse } from '../reusableComponents/saveHighlightedVerses';
+import { BookVersesListComponent, bottomUtilitySheetComponent } from './verseListComponent';
 
 var bibleJson = require('../jsonFiles/CompleteBible.json');
 
-
-
 function Book(props) {
-  const [bookClicked, setBookClicked] = useState()
-  const [verseNumClicked, setVerseNumClicked] = useState()
-  const [verseTextClicked, setVerseTextClicked] = useState()
-  const [selectedVerse, setSelectedVerse] = useState([])
+  const [currentBook, setCurrentBook] = useState()
   const [chapterClicked, setchapterClicked] = useState(1)
-  const [chapterClickedVerses, setchapterClickedVerses] = useState([])
-  const totalChapters = []
-  const [shouldShow, setShouldShow] = useState(false);
+  const [chapterClickedVerses, setchapterClickedVerses] = useState("")
 
-  
+  const totalChapters = []
+
   // useEffect to load Book, chapter, and verses to screen
-  const loadVerses = () => {
+  const loadVersesForChapterAndBook = () => {
     bibleJson.every(element => {
-      if (bookClicked == element.book) {
+      if (currentBook == element.book) {
         element.chapters.forEach(element2 => {
           if (element2.chapter == chapterClicked) {
             setchapterClickedVerses(element2.verses)
@@ -45,284 +37,89 @@ function Book(props) {
   }
 
   //Gets saved data which user left off such as book, and chapter from async
-  const getBookData2 = async (bookKey, chapterKey) => {
+  //TODO: get state of last chapter
+  const getBookUserLeftOffOn = async (bookKey, chapterKey) => {
     try {
-      
       let bookName = await AsyncStorage.getItem(bookKey)
       let chapter = await AsyncStorage.getItem(chapterKey)
       if (bookName == undefined) {
         bookName = 'Matthew'
-
       }
       if (chapter == undefined) {
         chapter = 1
-        console.log(chapter, 'yoo2')
       }
-      setBookClicked(bookName)
+      setCurrentBook(bookName)
       setchapterClicked(chapter)
-      props.sendDataToParent(bookName)     
-      
-
-      
+      props.sendDataToParent(bookName)
     } catch (error) {
-      
     }
   }
 
   // gets the order of current book in bible
-  const indexOfBook = parseInt(BookNames.findIndex(object => object == bookClicked ))
+  const indexOfBook = parseInt(BookNames.findIndex(object => object == currentBook))
 
   bibleJson.forEach(element => {
     totalChapters[element.book] = element.chapters.length
-
   });
-  
-
-  useEffect(() => {
-    getBookData2('book', 'chapter')
-  
-  
-  }, [])
-  
-
-  useEffect(() => {
-    
-
-
-    loadVerses()
-  }, [bookClicked, chapterClicked])
-
-  useEffect(() => {
-    if (props.route.params) {
-      getBookData2('book', 'chapter')
-    }
- 
-  }, [props]);
 
 
   // navigates through bible chapters and books on arrowclick
-  const arrowClick  = (leftOrRight) => {
+  const arrowClick = (leftOrRight) => {
     if (parseInt(chapterClicked) == 1 & leftOrRight == 'left') {
-      const prevBook = BookNames[indexOfBook-1]
+      const prevBook = BookNames[indexOfBook - 1]
       setchapterClicked(totalChapters[prevBook])
-      console.log(totalChapters[prevBook])
-      setBookClicked(prevBook)
+      setCurrentBook(prevBook)
       saveBookData('book', prevBook)
-
-
-
-    }else if (parseInt(chapterClicked) == totalChapters[bookClicked] & leftOrRight == 'right') {
-      const nextBook = BookNames[indexOfBook+1]
+      props.sendDataToParent(prevBook)
+    } else if (parseInt(chapterClicked) == totalChapters[currentBook] & leftOrRight == 'right') {
+      const nextBook = BookNames[indexOfBook + 1]
       setchapterClicked(1)
-      console.log(totalChapters[nextBook])
-      setBookClicked(nextBook)
+      setCurrentBook(nextBook)
       saveBookData('book', nextBook)
-
-
-    }else if (leftOrRight == 'left') {
-
-      setchapterClicked(parseInt(chapterClicked)-1)      
-
+    } else if (leftOrRight == 'left') {
+      setchapterClicked(parseInt(chapterClicked) - 1)
     } else if (leftOrRight == 'right') {
-      setchapterClicked(parseInt(chapterClicked)+1)
-    }
-    loadVerses()
-    console.log(chapterClicked)
-    
-  }
-
-  const myItemSeparator = () => {
-    return <View style={{ height: 1, backgroundColor: "grey",marginHorizontal:10}} />;
-    };
-
-  const myListEmpty = () => {
-    return (
-      <View style={{ alignItems: "center" }}>
-      <Text style={styles.item}>No data found</Text>
-      </View>
-    );
-  };
-
-  
-  const {height} = Dimensions.get('window')
-  const windowWidth = Dimensions.get('window').width;
-
-  // gets verse onpress and hides/unhides popup
-  // let selectedVerse = []
-  // console.log("yooooooooooo")
-  const onPress = (item) => {
-    // console.log(item)
-    if (shouldShow == false){
-      // console.log(selectedVerse)
-
-      setShouldShow(!shouldShow)
-      setSelectedVerse([item])
-      // console.log(selectedVerse)
-      // setVerseNumClicked(item.verse)
-      // setVerseTextClicked(item.text)
-      
-    }else {
-      // console.log("yoo")
-      // console.log(item.text)
-      // console.log(verseTextClicked)
-      // console.log("hi")
-      // selectedVerse.push(item)
-      // console.log(selectedVerse)
-      const index = selectedVerse.indexOf(item)
-      // // console.log("hahaaa")
-      console.log(index)
-
-      if (index > -1) {
-        console.log(selectedVerse);
-        // console.log(selectedVerse[index]);
-        let selectedVerseRep = selectedVerse
-        selectedVerseRep.splice(index, 1)
-        console.log(selectedVerseRep)
-        setSelectedVerse(selectedVerseRep)
-        // // console.log(selectedVerse)
-        if (selectedVerseRep.length == 0){
-          // console.log('hahah')
-          setShouldShow(!shouldShow)
-        }
-      }else {
-        setSelectedVerse([ ... selectedVerse, item])
-        // console.log(selectedVerse)
-      }
-      
-      
-    }
-    }
-    
-
-  const viewRef = useRef();
-
-  // allows popup to share verse
-  const shareVerse = async () => {
-    try {
-      const uri = verseTextClicked
-      console.log(uri, "haha")
-      await Share.share(
-        {
-          title: 'test title',
-          message: uri,
-        },
-        {
-          // excludedActivityTypes: [
-          //   // 'com.apple.UIKit.activity.PostToWeibo',
-          //   // 'com.apple.UIKit.activity.Print',
-          //   // 'com.apple.UIKit.activity.CopyToPasteboard',
-          //   // 'com.apple.UIKit.activity.AssignToContact',
-          //   // 'com.apple.UIKit.activity.SaveToCameraRoll',
-          //   // 'com.apple.UIKit.activity.AddToReadingList',
-          //   // 'com.apple.UIKit.activity.PostToFlickr',
-          //   // 'com.apple.UIKit.activity.PostToVimeo',
-          //   // 'com.apple.UIKit.activity.PostToTencentWeibo',
-          //   // 'com.apple.UIKit.activity.AirDrop',
-          //   // 'com.apple.UIKit.activity.OpenInIBooks',
-          //   // 'com.apple.UIKit.activity.MarkupAsPDF',
-          //   // 'com.apple.reminders.RemindersEditorExtension',
-          //   // 'com.apple.mobilenotes.SharingExtension',
-          //   // 'com.apple.mobileslideshow.StreamShareService',
-          //   // 'com.linkedin.LinkedIn.ShareExtension',
-          //   // 'pinterest.ShareExtension',
-          //   // 'com.google.GooglePlus.ShareExtension',
-          //   // 'com.tumblr.tumblr.Share-With-Tumblr',
-          //   // 'net.whatsapp.WhatsApp.ShareExtension', //WhatsApp
-          // ],
-        }
-      );
-      
-    } catch (error) {
-      console.log(error)
-      
+      setchapterClicked(parseInt(chapterClicked) + 1)
     }
   }
-  // console.log(chapterClickedVerses)
 
-  
-  
+  useEffect(() => {
+    getBookUserLeftOffOn('book', 'chapter')
+  }, [])
+
+  useEffect(() => {
+    loadVersesForChapterAndBook()
+  }, [currentBook, chapterClicked])
+
+  useEffect(() => {
+    if (props.route.params) {
+      getBookUserLeftOffOn('book', 'chapter')
+    }
+  }, [props]);
+
+
   return (
     <SafeAreaView style={styles.container}
     >
-      <FlatList style={{height:100, padding: 10}}
-        data={chapterClickedVerses}
-        renderItem={({ item }) =>  <TouchableOpacity
-                                    activeOpacity={.7}
-                                    onPress={() => {onPress(item)}}
-                                    >
-                                    <Text style={styles.item} ref={viewRef}>{item.text}</Text>
-                                  </TouchableOpacity>
-                                }
-        keyExtractor={(item) => item.verse}
-        ListEmptyComponent={myListEmpty}
-        ListHeaderComponent={() => (
-            
-          <Text style={{ fontSize: 30, textAlign: "center",marginTop:20,fontWeight:'bold',textDecorationLine: 'underline' }}>
-            {`${bookClicked} Chapter: ${chapterClicked}`} </Text>
-        )}
-        ListFooterComponent={() => (
-          <Text style={{ fontSize: 30, textAlign: "center",marginBottom:20,fontWeight:'bold' }}>End of Chapters</Text>
-        )}
-        // getItemLayout={(_, index) => (
-        
-        //     {length: styles.item.height, offset: styles.item.height * index, index}
-        //   )}
-          
-        //   initialScrollIndex= {6}
+      <Text style={{ fontSize: 30, textAlign: "center", marginTop: 20, fontWeight: 'bold', textDecorationLine: 'underline' }}> {`${currentBook} Chapter: ${chapterClicked}`} </Text>
+
+      <BookVersesListComponent
+        onBookmarkCallBack={(selectedVerse) => {
+          props.navigation.navigate('createBookmark', { currentBook, chapterClicked, selectedVerse });
+        }}
+        verses={chapterClickedVerses}
+        currentBook={currentBook}
+        chapterClicked={chapterClicked}
       />
+
       <View style={styles.arrowCont}>
-        <Icon name="arrow-left" size={20} color="black" onPress = {() => arrowClick('left')} type="entypo" />
-        <Icon name="arrow-right" size={20} color="black" onPress = {() => arrowClick('right')} type="entypo" />
+        <Icon name="arrow-left" size={20} color="black" onPress={() => arrowClick('left')} type="entypo" />
+        <Icon name="arrow-right" size={20} color="black" onPress={() => arrowClick('right')} type="entypo" />
       </View>
-      { shouldShow ? (<View style={{width: windowWidth}}>
-        <Text >Hello world</Text>
-        <SlidingUpPanel
-          
-          draggableRange={{top: height / 2.75, bottom: 120}}
-          // animatedValue={200}
-          showBackdrop={false}>
-          <View style={styles.panel}>
-            <View style={styles.panelHeader}>
-              <Button title='BookMark' onPress={() => {
-              let verse_nums = [] 
-              for (let i=0; i < selectedVerse.length; i++){
-                verse_nums.push(parseInt(selectedVerse[i].verse))
-              }
-              verse_nums.sort()
-              let flag = true
-              for (let i=0; i < verse_nums.length-1; i++){
-                if (verse_nums[i+1] - verse_nums[i] != 1){
-                  flag = false
-                } 
-
-              }
-              if (flag==true){
-                props.navigation.navigate('createBookmark', {bookClicked, chapterClicked, selectedVerse})
-              }else {
-                alert("verses not in order")
-              }
-
-              
-              }
-              
-              }></Button>
-              <Button title='Share' onPress={() => {shareVerse()}}></Button>
-            </View>
-            <View style={styles.container2}>
-              <Text>Bottom Sheet Content</Text>
-            </View>
-          </View>
-        </SlidingUpPanel>
-      </View>) : null
-      }
-      
-
     </SafeAreaView>
 
   )
 }
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -331,61 +128,65 @@ const styles = StyleSheet.create({
     // flexDirection: 'row'
   },
   panelContainer: {
-    
+
     flex: 1,
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center'
-    
+
   },
   item: {
     padding: 5,
     fontSize: 15,
     marginTop: 5,
-    height:60
-   
+    height: 60
+
   },
-  cardStyle:{
+  cardStyle: {
     padding: 10,
     margin: 10,
   },
-  arrowCont:{
+  arrowCont: {
     flexDirection: 'row',
     justifyContent: 'space-around'
 
   },
   container2: {
-        flex: 1,
-        backgroundColor: '#f8f9fa',
-        alignItems: 'center',
-        justifyContent: 'center',
-        
-      },
-      panel: {
-        flex: 1,
-        backgroundColor: 'white',
-        position: 'relative'
-      },
-      panelHeader: {
-        height: 120,
-        backgroundColor: '#b197fc',
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      favoriteIcon: {
-        position: 'absolute',
-        top: -24,
-        right: 24,
-        backgroundColor: '#2b8a3e',
-        width: 48,
-        height: 48,
-        padding: 8,
-        borderRadius: 24,
-        zIndex: 1
-      }
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+  },
+  panel: {
+    flex: 1,
+    backgroundColor: 'white',
+    position: 'relative'
+  },
+  panelHeader: {
+    height: 220,
+    backgroundColor: '#b197fc',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  favoriteIcon: {
+    position: 'absolute',
+    top: -24,
+    right: 24,
+    backgroundColor: '#2b8a3e',
+    width: 48,
+    height: 48,
+    padding: 8,
+    borderRadius: 24,
+    zIndex: 1
+  },
+  CircleShape: {
+    width: 50,
+    height: 50,
+    borderRadius: 50 / 2,
+  }
 
 });
 
 export default Book
-
 
