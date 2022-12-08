@@ -3,10 +3,11 @@
     "configurations": [
         {
             "name": "Debug Android 1",
-            "request": "launch",
+            "request": "attach",
             "type": "reactnative",
-            "cwd": "${workspaceFolder}",
-            "platform": "android"
+            "cwd": "${workspaceFolder}/ExpoBibleApp",
+            "port": 19000,
+            "sourceMaps": true
         }
     ]
 }

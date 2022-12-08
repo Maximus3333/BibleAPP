@@ -71,11 +71,25 @@ function BookVersesListComponent(props) {
 
   const updateHighlights = async (selectedColor) => {
     for (let verse of clickedOnVersesArray) {
-      var newHighlightedVerse = await saveHighlightedVerse('highlights', props.currentBook, props.chapterClicked, verse, selectedColor).then((highlights) => {
-        return highlights;
-      })
-      setHighlighted(newHighlightedVerse);
+      let prevColor = ''
+      try {
+        console.log(oldHighlighted);
+        if (oldHighlighted[verse.verse]){
+          prevColor = oldHighlighted[verse.verse]
+          console.log(prevColor, selectedColor);
+          if (selectedColor == prevColor) selectedColor = 'white'
+        }
+      } catch (error) {
+        console.log(error);
+        
+      }
+      var newHighlightedVerse = await saveHighlightedVerse('highlights', props.currentBook, props.chapterClicked, verse, selectedColor)
+      // .then((highlights) => {
+      //   return highlights;
+      // })
+      // setHighlighted(newHighlightedVerse);
     }
+    await getHighlightedVersesAsync()
     setClickedOnVersesArray([])
   }
 
@@ -89,7 +103,6 @@ function BookVersesListComponent(props) {
     getHighlightedVersesAsync()
   }, [])
 
-  console.log(clickedOnVersesArray.length>0, "before component is rendered")
 
   const shouldShowPopup = clickedOnVersesArray.length > 0;
 
@@ -133,7 +146,6 @@ function RenderCircles(props) {
 
 function BottomUtilitySheetComponent(props) {
   //const [shouldShow, setShouldShow] = useState(props.shouldShow);
-  console.log(props.shouldShow, "inside utility shuld show");
   
   var shouldShow = props.shouldShow
   

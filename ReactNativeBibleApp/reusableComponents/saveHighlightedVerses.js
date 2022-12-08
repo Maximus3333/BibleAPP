@@ -24,7 +24,7 @@ const saveHighlightedVerse = async (key, book, chapter, verseItem, color) => {
                     }else getHighlightedVerse[book][chapter] = {[verseItem.verse]:color}
                 }else getHighlightedVerse[book] = {[chapter]: {[verseItem.verse]: color}}
                 await AsyncStorage.setItem(key, JSON.stringify(getHighlightedVerse));
-                console.log(getHighlightedVerse, verseItem, "yeyeyeyyeye")
+                // console.log(getHighlightedVerse, verseItem, "yeyeyeyyeye")
                 return getHighlightedVerse
 
                 // return getHighlightedVerse
@@ -36,7 +36,7 @@ const saveHighlightedVerse = async (key, book, chapter, verseItem, color) => {
                         }
                     }
                 }
-                console.log(highlightedVersesObject);
+                // console.log(highlightedVersesObject);
                 await AsyncStorage.setItem(key, JSON.stringify(highlightedVersesObject));
                 return highlightedVersesObject
                 // return highlightedVersesObject
