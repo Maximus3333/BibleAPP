@@ -1,22 +1,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, StatusBar, View, SafeAreaView, Dimensions, TouchableOpacity, ScrollView, FlatList, Animated } from 'react-native';
 // import { Button, Icon } from 'react-native-elements';
-import { AntDesign } from '@expo/vector-icons'; 
+import { AntDesign } from '@expo/vector-icons';
 
 import BookNames from '../jsonFiles/BookNames.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { saveBookData } from '../reusableComponents/saveToAsync';
+import { saveBookData } from '../reusableComponents/SaveToAsync';
 
-import { getHighlightedVerses, saveHighlightedVerse } from '../reusableComponents/saveHighlightedVerses';
 import { BookVersesListComponent, bottomUtilitySheetComponent } from './VerseListComponent';
-import BookHeader from '../reusableComponents/bookHeader';
+import BookHeader from '../reusableComponents/BookHeader';
+import { BulletsLoader } from 'react-native-easy-content-loader';
+
 
 var bibleJson = require('../jsonFiles/CompleteBible.json');
 
 function Book(props) {
   const [currentBook, setCurrentBook] = useState()
-  const [currentChapter, setchapterClicked] = useState(1)
-  const [chapterClickedVerses, setchapterClickedVerses] = useState("")
+  const [currentChapter, setChapterClicked] = useState(1)
+  const [chapterClickedVerses, setChapterClickedVerses] = useState("")
+  const [arrowPos, setArrowPos] = useState(false)
+
 
   const totalChapters = []
 
@@ -26,7 +29,7 @@ function Book(props) {
       if (currentBook == element.book) {
         element.chapters.forEach(element2 => {
           if (element2.chapter == currentChapter) {
-            setchapterClickedVerses(element2.verses)
+            setChapterClickedVerses(element2.verses)
           }
         })
         if (element.chapters.chapter == currentChapter) {
@@ -52,7 +55,7 @@ function Book(props) {
         chapter = 1
       }
       setCurrentBook(bookName)
-      setchapterClicked(chapter)
+      setChapterClicked(chapter)
       props.sendDataToParent(bookName)
     } catch (error) {
     }
@@ -70,19 +73,19 @@ function Book(props) {
   const arrowClick = (leftOrRight) => {
     if (parseInt(currentChapter) == 1 & leftOrRight == 'left') {
       const prevBook = BookNames[indexOfBook - 1]
-      setchapterClicked(totalChapters[prevBook])
+      setChapterClicked(totalChapters[prevBook])
       setCurrentBook(prevBook)
       saveBookData('book', prevBook)
       props.sendDataToParent(prevBook)
     } else if (parseInt(currentChapter) == totalChapters[currentBook] & leftOrRight == 'right') {
       const nextBook = BookNames[indexOfBook + 1]
-      setchapterClicked(1)
+      setChapterClicked(1)
       setCurrentBook(nextBook)
       saveBookData('book', nextBook)
     } else if (leftOrRight == 'left') {
-      setchapterClicked(parseInt(currentChapter) - 1)
+      setChapterClicked(parseInt(currentChapter) - 1)
     } else if (leftOrRight == 'right') {
-      setchapterClicked(parseInt(currentChapter) + 1)
+      setChapterClicked(parseInt(currentChapter) + 1)
     }
   }
 
@@ -101,65 +104,89 @@ function Book(props) {
   }, [props]);
 
   const scrollY = new Animated.Value(0)
-  const diffClamp = Animated.diffClamp(scrollY,0,45)
+  const diffClamp = Animated.diffClamp(scrollY, 0, 45)
   const translateY = diffClamp.interpolate({
-    inputRange:[0,45],
-    outputRange:[0,-45],
+    inputRange: [0, 45],
+    outputRange: [0, -45],
 
   })
-  console.log(translateY, scrollY, diffClamp, "yoo");
-  
+  console.log(chapterClickedVerses ? true : false);
+  if (!chapterClickedVerses) {
+    return <BulletsLoader active listSize={50} />
 
-  return (
-    
-    <SafeAreaView style={styles.container}
-    >
-      <StatusBar hidden={false}/>
+  } else {
 
-      <Animated.View
-      style={{
-        transform:[
-          {translateY:translateY }
-        ],
-        elevation:4,
-        zIndex:100,
-      }}
+    return (
+
+      <SafeAreaView style={styles.container}
       >
-        <BookHeader currentBook={currentBook} currentChapter={currentChapter} navigation={props.navigation}/>
+        <StatusBar hidden={false} />
 
-      </Animated.View>
-      {/* <Text style={{ fontSize: 30, textAlign: "center", marginTop: 20, fontWeight: 'bold', textDecorationLine: 'underline' }}> {`${currentBook} Chapter: ${chapterClicked}`} </Text> */}
-      
-      <BookVersesListComponent
-        onBookmarkCallBack={(selectedVerse) => {
-          props.navigation.navigate('createBookmark', { currentBook, chapterClicked: currentChapter, selectedVerse });
+        <Animated.View
+          style={{
+            transform: [
+              { translateY: translateY }
+            ],
+            elevation: 4,
+            zIndex: 100,
+          }}
+        >
+          <BookHeader currentBook={currentBook} currentChapter={currentChapter} navigation={props.navigation} />
+
+        </Animated.View>
+        {/* <Text style={{ fontSize: 30, textAlign: "center", marginTop: 20, fontWeight: 'bold', textDecorationLine: 'underline' }}> {`${currentBook} Chapter: ${chapterClicked}`} </Text> */}
+
+        <BookVersesListComponent
+          onBookmarkCallBack={(selectedVerse) => {
+            props.navigation.navigate('createBookmark', { currentBook, chapterClicked: currentChapter, selectedVerse });
+          }}
+          onScroll={(e) => {
+            scrollY.setValue(e.nativeEvent.contentOffset.y)
+          }}
+          translateY={translateY}
+          verses={chapterClickedVerses}
+          currentBook={currentBook}
+          chapterClicked={currentChapter}
+          navigation={props.navigation}
+          setArrowPos={setArrowPos}
+          arrowPos={arrowPos}
+        />
+
+        {/* <View style={styles.arrowCont}> */}
+        <View style={{
+          position: 'absolute',
+          bottom: arrowPos ? "33%" : 40,
+          right: 50,
+          backgroundColor: '#393E46',
+          borderRadius: 20,
+          justifyItems: "flex-end",
+          zIndex: 3,
+          elevation: 5
         }}
-        onScroll={(e)=>{
-          scrollY.setValue(e.nativeEvent.contentOffset.y) 
+        >
+          <AntDesign style={{ padding: 7 }} onPress={() => arrowClick('right')} name="right" size={28} color="#F4EAD5" />
+        </View>
+        <View style={{
+          position: 'absolute',
+          bottom: arrowPos ? "33%" : 40,
+          left: 50,
+          backgroundColor: '#393E46',
+          borderRadius: 20
         }}
-        translateY={translateY}
-        verses={chapterClickedVerses}
-        currentBook={currentBook}
-        chapterClicked={currentChapter}
-      />
-
-      {/* <View style={styles.arrowCont}> */}
-      <View style={styles.arrowR}>
-        <AntDesign style={{padding:7}} onPress={() => arrowClick('right')} name="right" size={28} color="#F4EAD5" />
-      </View>
-      <View style={styles.arrowL}>
-        <AntDesign style={{padding:7}} onPress={() => arrowClick('left')} name="left" size={28} color="#F4EAD5" />
-      </View>
-      
+        >
+          <AntDesign style={{ padding: 7 }} onPress={() => arrowClick('left')} name="left" size={28} color="#F4EAD5" />
+        </View>
 
 
-              {/* <Icon name="left" size={20} color="black" onPress={() => arrowClick('left')} type="entypo" />
+
+        {/* <Icon name="left" size={20} color="black" onPress={() => arrowClick('left')} type="entypo" />
         <Icon name="right" size={20} color="black" onPress={() => arrowClick('right')} type="entypo" /> */}
-      {/* </View> */}
-      
-    </SafeAreaView>
+        {/* </View> */}
 
-  )
+      </SafeAreaView>
+
+    )
+  }
 }
 
 const styles = StyleSheet.create({
@@ -168,7 +195,7 @@ const styles = StyleSheet.create({
     // marginTop: 40
     // padding: 10,
     // flexDirection: 'row'
-    
+
   },
   panelContainer: {
 
@@ -176,8 +203,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
-    width:"100%",
-    backgroundColor:'red'
+    width: "100%",
+    backgroundColor: 'red'
 
 
   },
@@ -193,12 +220,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   arrowR: {
-    position: 'absolute',
-    bottom: 40,
-    right: 50,
-    backgroundColor:'#393E46',
-    borderRadius: 20,
-    justifyItems: "flex-end"
+
 
 
   },
@@ -206,7 +228,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 40,
     left: 50,
-    backgroundColor:'#393E46',
+    backgroundColor: '#393E46',
     borderRadius: 20
 
   },

@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, View, Text, FlatList, Button, ScrollView, TouchableOpacity, Share } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { getHighlightedVerses, saveHighlightedVerse } from '../reusableComponents/saveHighlightedVerses';
-import AppLoading from 'expo-app-loading';
+import { getHighlightedVerses, saveHighlightedVerse } from '../reusableComponents/SaveHighlightedVerses';
+import * as SplashScreen from 'expo-splash-screen';
+import { Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+
+
 
 import {
   useFonts,
@@ -44,20 +48,46 @@ function BookVersesListComponent(props) {
   })();
 
   const sheetRef = useRef();
+
   function selectVerse(item) {
     const indexOfVerse = clickedOnVersesArray.indexOf(item);
-
-    if(indexOfVerse == -1){
+    console.log(indexOfVerse);
+    console.log(clickedOnVersesArray);
+    if (indexOfVerse == -1) {
       setClickedOnVersesArray([...clickedOnVersesArray, item]);
-    }else{
-      let selectedVerseRep = JSON.parse(JSON.stringify(clickedOnVersesArray))
+    } else {
+      // let selectedVerseRep = JSON.parse(JSON.stringify(clickedOnVersesArray))
+      let selectedVerseRep = [...clickedOnVersesArray]
       selectedVerseRep.splice(indexOfVerse, 1);
+      // console.log(selectedVerseRep, "hohoho");
       setClickedOnVersesArray(selectedVerseRep);
     }
   }
+  useEffect(() => {
+    async function prepare() {
+      await SplashScreen.preventAutoHideAsync();
+    }
+    prepare()
+  }, [])
+  const onLayout = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync()
+    }
+  }, [fontsLoaded])
+
+  // useEffect(() => {
+  //   // console.log('rerender');
+  //   // console.log(clickedOnVersesArray);
+  // }, [clickedOnVersesArray])
 
   const renderItem = ({ item }) => {
     let tempColor = 'black';
+    let underlined = null
+    if (clickedOnVersesArray.indexOf(item) != -1) {
+      // console.log(clickedOnVersesArray, "yooo");
+      underlined = 'underline'
+
+    }
     if (highlighted) {
       try {
         if (highlighted[item.verse]) {
@@ -68,27 +98,31 @@ function BookVersesListComponent(props) {
       }
     }
     if (!fontsLoaded) {
-      return <AppLoading />;
-    }else {
-    return (<TouchableOpacity
-      activeOpacity={.7}
-      onPress={() => { selectVerse(item); }}
+      return null
+    } else {
+      return (<TouchableOpacity
+        activeOpacity={.7}
+        onPress={() => { selectVerse(item); }}
 
-    >
-      <Text style={{
-        paddingLeft: 8,
-        paddingRight: 8,
+      >
+        <Text style={{
+          paddingLeft: 8,
+          paddingRight: 8,
+          textDecorationLine: underlined,
+          textDecorationStyle: 'dotted',
+          fontSize: 18,
+          fontFamily: 'GentiumBasic_400Regular',
+          lineHeight: 30,
+          // marginTop: 5,
+          // height: 60,
+          justifySelf: 'center',
 
-        fontSize: 18,
-        fontFamily: 'GentiumBasic_400Regular', 
-        lineHeight:30,
-        // marginTop: 5,
-        // height: 60,
-        justifySelf: 'center',
+          color: tempColor,
+        }}
+          onLayout={onLayout}
 
-        color: tempColor,
-      }}>{item.verse}{'\t'}{item.text}</Text>
-    </TouchableOpacity>);
+        >{item.verse}{'\t'}{item.text}</Text>
+      </TouchableOpacity>);
     }
   }
 
@@ -96,7 +130,7 @@ function BookVersesListComponent(props) {
     for (let verse of clickedOnVersesArray) {
       let prevColor = ''
       try {
-        if (highlighted[verse.verse]){
+        if (highlighted[verse.verse]) {
           prevColor = highlighted[verse.verse]
           if (selectedColor == prevColor) selectedColor = 'white'
         }
@@ -122,25 +156,24 @@ function BookVersesListComponent(props) {
   useEffect(() => {
     getHighlightedVersesAsync()
   }, [])
-  console.log(props.onBookmarkCallBack, "yoooooo");
 
 
   const shouldShowPopup = clickedOnVersesArray.length > 0;
+  if (shouldShowPopup != props.arrowPos) {
+    props.setArrowPos(shouldShowPopup)
+  }
+
 
   return <>
 
-    <FlatList 
-      style={{paddingTop: (45), backgroundColor: "#FFFFFF"}}
+    <FlatList
+      style={{ paddingTop: (45), backgroundColor: "#FFFFFF" }}
       data={props.verses}
       renderItem={renderItem}
       keyExtractor={(item) => item.verse}
       ListEmptyComponent={myListEmpty}
-
-      ListFooterComponent={() => (
-        <Text style={{ fontSize: 30, textAlign: "center", marginBottom: 20, fontWeight: 'bold' }}>End of Chapters</Text>
-      )}
       scrollEventThrottle={16}
-      onScroll= {props.onScroll}
+      onScroll={props.onScroll}
 
     />
 
@@ -148,9 +181,16 @@ function BookVersesListComponent(props) {
       sheetRef={sheetRef}
       shouldShow={shouldShowPopup}
       clickedOnVersesArray={clickedOnVersesArray}
+      setClickedOnVersesArray={setClickedOnVersesArray}
+
       onBookmarkCallBack={props.onBookmarkCallBack}
       updateHighlights={updateHighlights}
-       />
+      navigation={props.navigation}
+      currentBook={props.currentBook}
+      chapterClicked={props.currentChapter}
+    // setArrowPos={props.setArrowPos}
+
+    />
   </>
 }
 
@@ -170,74 +210,89 @@ function RenderCircles(props) {
 
 function BottomUtilitySheetComponent(props) {
   //const [shouldShow, setShouldShow] = useState(props.shouldShow);
-  
+
   var shouldShow = props.shouldShow
-  
+
   const shareVerse = async () => {
-      let versesString = ""
+    let versesString = ""
 
-      props.clickedOnVersesArray.sort()
-      for (let verseItem of props.clickedOnVersesArray) {
-        versesString = versesString + verseItem.text + " " 
-      }
-      try {
-        const uri = versesString
-        await Share.share(
-          {
-            title: 'test title',
-            message: uri,
-          }
-        );
+    props.clickedOnVersesArray.sort()
+    for (let verseItem of props.clickedOnVersesArray) {
+      versesString = versesString + verseItem.text + " "
+    }
+    try {
+      const uri = versesString
+      await Share.share(
+        {
+          title: 'test title',
+          message: uri,
+        }
+      );
 
-      } catch (error) {
-        console.log(error);
+    } catch (error) {
+      console.log(error);
 
-      }
+    }
   }
 
   return props.shouldShow ? <BottomSheet
     ref={props.sheetRef}
     index={0}
-    snapPoints={["40%"]}
+    snapPoints={["30%"]}
     enablePanDownToClose={true}
-    onAnimate={(a)=>{
-      if(a==0){
+    onAnimate={(a) => {
+      if (a == 0) {
         shouldShow = false;
       }
     }}
   >
-    <BottomSheetView>
-      <Button title='BookMark' onPress={() => {
-        let verse_nums = [];
-        for (let i = 0; i < props.selectedVerse.length; i++) {
-          verse_nums.push(parseInt(props.selectedVerse[i].verse));
-        }
-        verse_nums.sort();
-        
-        let flag = true;
-        for (let i = 0; i < verse_nums.length - 1; i++) {
-          if (verse_nums[i + 1] - verse_nums[i] != 1) {
-            flag = false;
+    <BottomSheetView style={{ zIndex: 1, elevation: 4, position: "absolute", height: "100%" }}>
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity style={styles.buttons} onPress={() => {
+          let verse_nums = [];
+          for (let i = 0; i < props.clickedOnVersesArray.length; i++) {
+            verse_nums.push(parseInt(props.clickedOnVersesArray[i].verse));
           }
-        }
+          verse_nums.sort();
 
-        // TODO: Wire up create bookmark after refactoring this component. Call bacck function.
-        if (flag == true) {
-          props.bookmarkCallback(props.selectedVerse)
-        } else {
-          alert("verses not in order");
-        }
-      }}></Button>
-      <Button title='Share' onPress={() => { shareVerse(); }}></Button>
+          let flag = true;
+          for (let i = 0; i < verse_nums.length - 1; i++) {
+            if (verse_nums[i + 1] - verse_nums[i] != 1) {
+              flag = false;
+            }
+          }
+
+          // TODO: Wire up create bookmark after refactoring this component. Call bacck function.
+          if (flag == true) {
+            props.navigation.navigate("createBookmark", { currentBook: props.currentBook, currentChapter: props.currentChapter, clickedOnVersesArray: props.clickedOnVersesArray })
+          } else {
+            alert("verses not in order");
+          }
+        }}>
+          <View style={styles.logoTextContainer}>
+            <View style={{ height: 30, width: 30 }}>
+              <Ionicons name="md-bookmark-outline" size={24} color="green" />
+            </View>
+            <Text style={{ fontSize: 18 }}>BookMark</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttons} onPress={() => { shareVerse(); }}>
+          <View style={styles.logoTextContainer}>
+            <View style={{ height: 30, width: 30 }}>
+              <Feather name="share-2" size={24} color="green" />
+            </View>
+            <Text style={{ fontSize: 18 }}>Share</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
       <NativeViewGestureHandler disallowInterruption={true}>
 
         <ScrollView horizontal={true}>
-          <RenderCircles updateHighlights={props.updateHighlights}/>
-          <Text>hiiiii</Text>
+          <RenderCircles updateHighlights={props.updateHighlights} />
         </ScrollView>
       </NativeViewGestureHandler>
     </BottomSheetView>
-  </BottomSheet>: null
+  </BottomSheet> : null
 }
 
 const styles = StyleSheet.create({
@@ -248,6 +303,21 @@ const styles = StyleSheet.create({
     height: 60
 
   },
+  buttonsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    paddingTop: 20,
+    justifyContent: "center",
+    marginBottom: 25
+  },
+  buttons: {
+    padding: 5
+  },
+  logoTextContainer: {
+    justifyContent: "center", alignItems: "center",
+    marginLeft: 15,
+    marginRight: 15
+  }
 });
 
 export { BookVersesListComponent }

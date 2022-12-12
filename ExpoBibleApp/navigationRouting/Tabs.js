@@ -76,7 +76,7 @@ const Tabs = () => {
 
 
                 <BibleStack.Screen name='createBookmark' component={CreateBookMark} />
-                <BibleStack.Screen name='navigateBible' component={BookChapVerseScreens} />
+                <BibleStack.Screen name='Reference' component={BookChapVerseScreens} />
             </BibleStack.Navigator>
 
         )

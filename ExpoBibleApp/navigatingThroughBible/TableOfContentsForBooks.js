@@ -1,11 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, Modal, Pressable, TouchableOpacity, SectionList, Alert } from 'react-native';
-import { saveBookData } from '../reusableComponents/saveToAsync';
+import { saveBookData } from '../reusableComponents/SaveToAsync';
 
 const Books = require('../jsonFiles/BookNames.json');
 const bibleJson = require('../jsonFiles/CompleteBible.json');
 
-function tableOfContentsForBooks(props) {
+function TableOfContentsForBooks(props) {
     const [bookNames, setbookNames] = useState([])
     const [bookClicked, setBookClicked] = useState([])
     const [displayContents, setdisplayContents] = useState([])
@@ -42,37 +42,42 @@ function tableOfContentsForBooks(props) {
         return (
             
             <Pressable style = {styles.cardStyle} onPress = {() => clickedItem(item)}>
-                <Text style = {{fontSize:25}}>{item}</Text>
+                <Text style = {styles.bookTitles}>{item}</Text>
             </Pressable>
           )
     }
 
 
     return (
-        <View style={styles.container}>
-            <View style={styles.centeredView}>
-                <View style={[styles.modalView]}>
-                    <FlatList style={{backgroundColor: 'red', width: 300}}
-                        data={bookNames}
-                        renderItem = {({item}) => {
-                            return renderData(item)
-                        }}
-                    />   
-                </View>
-            </View>
+        <SafeAreaView style={styles.container}>
+            <FlatList style={{width:'100%'}}
+                data={bookNames}
+                renderItem = {({item}) => {
+                    return renderData(item)
+                }}
+            />   
+        </SafeAreaView>
             
       
-    </View>
     )
 }
 
-export default tableOfContentsForBooks
+export default TableOfContentsForBooks
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
+        marginLeft: 30,
+        marginTop: 10,
+        marginBottom: 10
         // backgroundColor: '#8fcbbc',
+    },
+    bookTitles: {
+        fontFamily: 'notoserif',
+        fontSize: 20,
+        paddingBottom: 10
+
     }
 })

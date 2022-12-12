@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
-import { saveBookData } from '../reusableComponents/saveToAsync';
+import { saveBookData } from '../reusableComponents/SaveToAsync';
 
 const bibleJson = require('../jsonFiles/CompleteBible.json');
 
-function tableOfContentsForChapters(props) {
+function TableOfContentsForChapters(props) {
     const [bookClicked, setBookClicked] = useState([])
     const [bookChapters, setBookChapters] = useState([])
     const [totalChapters, setTotalChapters] = useState(3)
@@ -53,11 +53,15 @@ function tableOfContentsForChapters(props) {
 
     return (
       <View >
-        <Text>{totalChapters}</Text>
         <FlatList
         data={array}
-        style={{flexWrap:'wrap', width:100}}
-        renderItem={({ item }) => <Text style={{padding: 10}} onPress = {() => clickedItem(item)}>{item.i}</Text>}
+        horizontal={false}
+        numColumns={7} 
+        // columnWrapperStyle={{ flexDirection:'row' , alignItems: "center" }}
+        contentContainerStyle={{alignItems : 'flex-start', width:"100%", }}
+
+        // style={{flexWrap:'wrap', width:'100%', flexDirection:'column', backgroundColor:'red'}}
+        renderItem={({ item }) => <View style={{marginLeft: 3, padding: 8, height:52, width:55}}><Text  onPress = {() => clickedItem(item)}>{item.i}</Text></View> }
         >
         </FlatList>
       </View>
@@ -65,7 +69,7 @@ function tableOfContentsForChapters(props) {
     )
 }
 
-export default tableOfContentsForChapters
+export default TableOfContentsForChapters
 
 const styles = StyleSheet.create({
     container: {

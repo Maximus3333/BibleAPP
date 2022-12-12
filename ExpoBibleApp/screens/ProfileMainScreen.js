@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import { View, ScrollView, StyleSheet, Dimensions  } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions, TouchableOpacity  } from 'react-native';
 import { Button, ButtonGroup, withTheme, Text } from '@rneui/themed';
+import { firebase } from '../firebase'
+
 
 
 
@@ -38,6 +40,14 @@ function ProfileMainScreen(props) {
               }}
               titleStyle={{ fontWeight: 'bold' }}
             />
+            <TouchableOpacity
+              onPress={()=>{
+                firebase.auth().signOut();
+              }}
+              style={styles.button}
+            >
+              <Text style={{fontWeight:'bold', fontSize:22}}>Sign Out</Text>
+            </TouchableOpacity>
             <Button
               title="HOME"
               icon={{

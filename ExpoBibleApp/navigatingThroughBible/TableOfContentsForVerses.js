@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, FlatList} from 'react-native';
 
 
-function tableOfContentsForVerses(props) {
+function TableOfContentsForVerses(props) {
     const [bookClicked, setBookClicked] = useState([])
     const [chapterClicked, setchapterClicked] = useState([])
     const [clickedVersesLen, setClickedVersesLen] = useState(0)
@@ -35,15 +35,18 @@ function tableOfContentsForVerses(props) {
         <View >
             <FlatList
             data={array}
-            style={{flexWrap:'wrap', width:100}}
-            renderItem={({ item }) => <Text style={{padding: 10}} onPress = {() => clickedItem(item)} >{item.i}</Text>}
+            horizontal={false}
+            numColumns={7}
+            contentContainerStyle={{alignItems : 'flex-start', width:"100%", }}
+
+            renderItem={({ item }) => <View><Text style={{marginLeft: 3, padding: 8, height:52, width:55}} onPress = {() => clickedItem(item)} >{item.i}</Text></View>}
             >
             </FlatList>
         </View>
     )
 }
 
-export default tableOfContentsForVerses
+export default TableOfContentsForVerses
 
 const styles = StyleSheet.create({
     container: {

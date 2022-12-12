@@ -19,12 +19,12 @@ const CreateBookMark = ( props ) => {
     let verses_text = ""
     useEffect(() => {
         // console.log(props)
-        setBookClicked(props.route.params.bookClicked)
-        setChapterClicked(props.route.params.chapterClicked)
-        setSelectedVerse(props.route.params.selectedVerse)
+        setBookClicked(props.route.params.currentBook)
+        setChapterClicked(props.route.params.currentChapter)
+        setSelectedVerse(props.route.params.clickedOnVersesArray)
         // setVerseNumClicked(props.route.params.verseNumClicked)
         // setVerseTextClicked(props.route.params.verseTextClicked)
-        let tempSelectedVerses = props.route.params.selectedVerse
+        let tempSelectedVerses = props.route.params.clickedOnVersesArray
         if (tempSelectedVerses.length > 1) {
             let min = parseInt(tempSelectedVerses[0].verse)
             let max = parseInt(tempSelectedVerses[1].verse)
