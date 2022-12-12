@@ -1,2 +1,5 @@
 # BibleAPP
-Bible app with Django backend and React-Native mobile front-end
+Bible app React-Native mobile front-end and firebase back-end
+
+1. Install npm 
+2. run expo start
