@@ -10,6 +10,7 @@ import TableOfContentsForVerses from '../navigatingThroughBible/TableOfContentsF
 import CreateBookMark from '../screens/BookmarkCreate';
 import ProfileMainScreen from '../screens/ProfileMainScreen';
 import BookMarks from '../screens/BookMarks';
+import Illustrations from '../screens/Illustrations';
 
 
 
@@ -96,6 +97,17 @@ const Tabs = () => {
         )
     }
 
+    const IllustrationStack = createStackNavigator()
+    const IllustrationScreens = ({ navigation }) => {
+        return (
+            <IllustrationStack.Navigator>
+                <IllustrationStack.Screen name='mainScreen' component={Illustrations}>
+
+                </IllustrationStack.Screen>
+            </IllustrationStack.Navigator>
+        )
+    }
+
 
     return (
         <Tab.Navigator >
@@ -107,6 +119,12 @@ const Tabs = () => {
             </Tab.Screen>
             <Tab.Screen name="Profile"
                 component={ProfileScreens}
+                options={{ headerShown: false }}
+            >
+
+            </Tab.Screen>
+            <Tab.Screen name='Illustrations'
+                component={IllustrationScreens}
                 options={{ headerShown: false }}
             >
 
